@@ -13,7 +13,8 @@ struct ASMLine
     {
         Label,
         Instruction,
-        Directive
+        Directive,
+        MissingOpcode
     };
 
     ASMLine(Type t, std::string te)
@@ -339,9 +340,13 @@ struct mos6502 : ASMLine
             case ASMLine::Type::Directive:
             case ASMLine::Type::Instruction:
             {
-                const std::string line = '\t' + text + ' ' + op.value;
+                const std::string line = "    " + text + ' ' + op.value;
                 return line + std::string(static_cast<size_t>(std::max(15 - static_cast<int>(line.size()), 1)), ' ') +
                        "; " + comment;
+            }
+            case ASMLine::Type::MissingOpcode:
+            {
+                return ";   " + text + " !!!MISSING!!! !!!MISSING!!!";
             }
         };
         throw std::runtime_error("Unable to render: " + text);
@@ -473,6 +478,8 @@ struct i386 : ASMLine
                     return OpCode::pushl;
                 if (o == "retl")
                     return OpCode::retl;
+
+                return OpCode::unknown;
             }
         }
         throw std::runtime_error("Unknown opcode: " + o);
@@ -580,11 +587,14 @@ struct i386 : ASMLine
     Operand operand2;
 };
 
-void translate_instruction(std::vector<mos6502> &instructions, const i386::OpCode op, const Operand &o1,
-                           const Operand &o2)
+void translate_instruction(std::vector<mos6502> &instructions, const std::string &line_text, const i386::OpCode op,
+                           const Operand &o1, const Operand &o2)
 {
     switch (op)
     {
+        case i386::OpCode::unknown:
+            instructions.emplace_back(ASMLine::Type::MissingOpcode, line_text);
+            break;
         case i386::OpCode::ret:
             instructions.emplace_back(mos6502::OpCode::rts);
             break;
@@ -989,13 +999,15 @@ void to_mos6502(const i386 &i, std::vector<mos6502> &instructions)
                 //        instructions.emplace_back(ASMLine::Type::Directive, "; " + i.line_text);
 
                 const auto head = instructions.size();
-                translate_instruction(instructions, i.opcode, i.operand1, i.operand2);
 
                 auto text = i.line_text;
                 if (text[0] == '\t')
                 {
                     text.erase(0, 1);
                 }
+
+                translate_instruction(instructions, text, i.opcode, i.operand1, i.operand2);
+
                 for_each(std::next(instructions.begin(), head), instructions.end(),
                          [text](auto &ins) { ins.comment = text; });
                 return;
@@ -1201,7 +1213,7 @@ int main()
             {
                 instructions.emplace_back(lineno, line, ASMLine::Type::Instruction, match[1]);
             }
-            else if (line == "")
+            else if (line.empty())
             {
                 // std::cout << "EmptyLine\n";
             }
