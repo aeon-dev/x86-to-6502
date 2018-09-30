@@ -157,7 +157,8 @@ struct mos6502 : ASMLine
         rts,
         clc,
         sec,
-        bit
+        bit,
+        jsr
     };
 
     static bool get_is_branch(const OpCode o)
@@ -194,6 +195,7 @@ struct mos6502 : ASMLine
             case OpCode::clc:
             case OpCode::sec:
             case OpCode::bit:
+            case OpCode::jsr:
             case OpCode::unknown:
                 break;
         }
@@ -324,6 +326,8 @@ struct mos6502 : ASMLine
                 return "sec";
             case OpCode::bit:
                 return "bit";
+            case OpCode::jsr:
+                return "jsr";
             case OpCode::unknown:
                 return "";
         };
@@ -397,7 +401,8 @@ struct i386 : ASMLine
         sbbb,
         negb,
         notb,
-        retl
+        retl,
+        calll
     };
 
     static OpCode parse_opcode(Type t, const std::string &o)
@@ -478,6 +483,8 @@ struct i386 : ASMLine
                     return OpCode::pushl;
                 if (o == "retl")
                     return OpCode::retl;
+                if (o == "calll")
+                    return OpCode::calll;
 
                 return OpCode::unknown;
             }
@@ -923,6 +930,11 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
                 instructions.emplace_back(mos6502::OpCode::lda, get_register(o1.reg_num, 1));
                 instructions.emplace_back(mos6502::OpCode::pha);
             }
+            else if (o1.type == Operand::Type::literal)
+            {
+                instructions.emplace_back(mos6502::OpCode::lda, o1);
+                instructions.emplace_back(mos6502::OpCode::pha);
+            }
             else
             {
                 throw std::runtime_error("Cannot translate pushl instruction");
@@ -947,6 +959,16 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
             else
             {
                 throw std::runtime_error("Cannot translate sbbb instruction");
+            }
+            break;
+        case i386::OpCode::calll:
+            if (o1.type == Operand::Type::literal)
+            {
+                instructions.emplace_back(mos6502::OpCode::jsr, o1);
+            }
+            else
+            {
+                throw std::runtime_error("Cannot translate calll instruction");
             }
             break;
 
