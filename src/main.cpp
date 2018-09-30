@@ -965,12 +965,12 @@ std::string to_string(const LogLevel ll)
 
 void log(LogLevel ll, const i386 &i, const std::string &message)
 {
-    std::cout << to_string(ll) << ": " << i.line_num << ": " << message << ": `" << i.line_text << "`\n";
+    std::cerr << to_string(ll) << ": " << i.line_num << ": " << message << ": `" << i.line_text << "`\n";
 }
 
 void log(LogLevel ll, const int line_no, const std::string &line, const std::string &message)
 {
-    std::cout << to_string(ll) << ": " << line_no << ": " << message << ": `" << line << "`\n";
+    std::cerr << to_string(ll) << ": " << line_no << ": " << message << ": `" << line << "`\n";
 }
 
 void to_mos6502(const i386 &i, std::vector<mos6502> &instructions)
