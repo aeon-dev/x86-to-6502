@@ -1,4 +1,5 @@
 #include <x86-to-6502/i386.h>
+#include <regex>
 
 namespace internal
 {
@@ -204,4 +205,48 @@ i386::i386(const int line_number, std::string line_text, line_type type, std::st
     , operand1_{internal::parse_operand(operand1)}
     , operand2_{internal::parse_operand(operand2)}
 {
+}
+
+auto i386::parse(const std::string &line, const int line_number) -> i386
+{
+    std::regex Comment(R"(\s*\#.*)");
+    std::regex Label(R"(^(\S+):.*)");
+    std::regex Directive(R"(^\t?(\..+))");
+    std::regex UnaryInstruction(R"(^\t(\S+)\s+(\S+))");
+    std::regex BinaryInstruction(R"(^\t(\S+)\s+(\S+),\s+(\S+))");
+    std::regex Instruction(R"(^\t(\S+))");
+
+    std::smatch match;
+    if (std::regex_match(line, match, Label))
+    {
+        return {line_number, line, asm_line::line_type::Label, match[1]};
+    }
+    else if (std::regex_match(line, match, Comment))
+    {
+        return {line_number, line};
+    }
+    else if (std::regex_match(line, match, Directive))
+    {
+        return {line_number, line, asm_line::line_type::Directive, match[1]};
+    }
+    else if (std::regex_match(line, match, UnaryInstruction))
+    {
+        return {line_number, line, asm_line::line_type::Instruction, match[1], match[2]};
+    }
+    else if (std::regex_match(line, match, BinaryInstruction))
+    {
+        return {line_number, line, asm_line::line_type::Instruction, match[1], match[2], match[3]};
+    }
+    else if (std::regex_match(line, match, Instruction))
+    {
+        return {line_number, line, asm_line::line_type::Instruction, match[1]};
+    }
+    else if (line.empty())
+    {
+        return i386{line_number};
+    }
+    else
+    {
+        throw std::runtime_error("Unparsed Input, Line: " + std::to_string(line_number));
+    }
 }

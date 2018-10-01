@@ -43,8 +43,9 @@ enum class i386_opcode
     calll
 };
 
-struct i386 : asm_line
+class i386 : public asm_line
 {
+public:
     // Empty line
     explicit i386(const int line_number);
 
@@ -53,6 +54,8 @@ struct i386 : asm_line
 
     i386(const int line_number, std::string line_text, line_type type, std::string opcode, std::string operand1 = "",
          std::string operand2 = "");
+
+    static auto parse(const std::string &line, const int line_number) -> i386;
 
     auto line_number() const noexcept
     {

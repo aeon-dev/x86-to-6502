@@ -7,9 +7,9 @@
 #include <vector>
 #include <set>
 #include <string>
-#include <regex>
 #include <map>
 #include <cctype>
+#include <algorithm>
 
 int parse_literal(const std::string &s)
 {
@@ -601,8 +601,8 @@ void to_mos6502(const i386 &i, std::vector<mos6502> &instructions)
                 auto text = i.line_text_unindented();
                 translate_instruction(instructions, text, i.opcode(), i.operand1(), i.operand2());
 
-                for_each(std::next(instructions.begin(), head), instructions.end(),
-                         [text](auto &ins) { ins.set_comment(text); });
+                std::for_each(std::next(instructions.begin(), head), instructions.end(),
+                              [text](auto &ins) { ins.set_comment(text); });
                 break;
             }
             case asm_line::line_type::MissingOpcode:
@@ -771,50 +771,6 @@ bool fix_overwritten_flags(std::vector<mos6502> &instructions)
     return false;
 }
 
-auto parse_i386_instruction(const std::string &line, const int lineno) -> i386
-{
-    std::regex Comment(R"(\s*\#.*)");
-    std::regex Label(R"(^(\S+):.*)");
-    std::regex Directive(R"(^\t?(\..+))");
-    std::regex UnaryInstruction(R"(^\t(\S+)\s+(\S+))");
-    std::regex BinaryInstruction(R"(^\t(\S+)\s+(\S+),\s+(\S+))");
-    std::regex Instruction(R"(^\t(\S+))");
-
-    std::smatch match;
-    if (std::regex_match(line, match, Label))
-    {
-        return {lineno, line, asm_line::line_type::Label, match[1]};
-    }
-    else if (std::regex_match(line, match, Comment))
-    {
-        return {lineno, line};
-    }
-    else if (std::regex_match(line, match, Directive))
-    {
-        return {lineno, line, asm_line::line_type::Directive, match[1]};
-    }
-    else if (std::regex_match(line, match, UnaryInstruction))
-    {
-        return {lineno, line, asm_line::line_type::Instruction, match[1], match[2]};
-    }
-    else if (std::regex_match(line, match, BinaryInstruction))
-    {
-        return {lineno, line, asm_line::line_type::Instruction, match[1], match[2], match[3]};
-    }
-    else if (std::regex_match(line, match, Instruction))
-    {
-        return {lineno, line, asm_line::line_type::Instruction, match[1]};
-    }
-    else if (line.empty())
-    {
-        return i386{lineno};
-    }
-    else
-    {
-        throw std::runtime_error("Unparsed Input, Line: " + std::to_string(lineno));
-    }
-}
-
 int main()
 {
     int lineno = 0;
@@ -828,7 +784,7 @@ int main()
 
         try
         {
-            auto instruction = parse_i386_instruction(line, lineno);
+            auto instruction = i386::parse(line, lineno);
 
             if (!instruction.is_empty() && !instruction.is_comment())
                 instructions.emplace_back(std::move(instruction));
