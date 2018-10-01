@@ -695,7 +695,7 @@ int main()
 {
     std::regex Comment(R"(\s*\#.*)");
     std::regex Label(R"(^(\S+):.*)");
-    std::regex Directive(R"(^\t(\..+))");
+    std::regex Directive(R"(^\t?(\..+))");
     std::regex UnaryInstruction(R"(^\t(\S+)\s+(\S+))");
     std::regex BinaryInstruction(R"(^\t(\S+)\s+(\S+),\s+(\S+))");
     std::regex Instruction(R"(^\t(\S+))");
