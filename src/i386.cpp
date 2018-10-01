@@ -1,25 +1,17 @@
 #include "i386.h"
 
-i386::i386(const int t_line_num, std::string t_line_text, line_type t, std::string t_opcode, std::string o1,
-           std::string o2)
-    : asm_line{t, t_opcode}
-    , line_num{t_line_num}
-    , line_text{std::move(t_line_text)}
-    , opcode{parse_opcode(t, t_opcode)}
-    , operand1{parse_operand(o1)}
-    , operand2{parse_operand(o2)}
+namespace internal
 {
-}
 
-auto i386::parse_opcode(line_type t, const std::string &o) -> i386_opcode
+static auto parse_opcode(asm_line::line_type t, const std::string &o) -> i386_opcode
 {
     switch (t)
     {
-        case line_type::Label:
+        case asm_line::line_type::Label:
             return i386_opcode::unknown;
-        case line_type::Directive:
+        case asm_line::line_type::Directive:
             return i386_opcode::unknown;
-        case line_type::Instruction:
+        case asm_line::line_type::Instruction:
         {
             if (o == "movzwl")
                 return i386_opcode::movzwl;
@@ -101,78 +93,91 @@ auto i386::parse_opcode(line_type t, const std::string &o) -> i386_opcode
     throw std::runtime_error("Unknown opcode: " + o);
 }
 
-auto i386::parse_operand(std::string o) -> operand
+static auto parse_operand(std::string o) -> instruction_operand
 {
     if (o.empty())
         return {};
 
     if (o[0] != '%')
-        return operand(operand_type::literal, std::move(o));
+        return instruction_operand(operand_type::literal, std::move(o));
 
     if (o == "%al")
     {
-        return operand(operand_type::reg, 0x00);
+        return instruction_operand(operand_type::reg, 0x00);
     }
     else if (o == "%ah")
     {
-        return operand(operand_type::reg, 0x01);
+        return instruction_operand(operand_type::reg, 0x01);
     }
     else if (o == "%bl")
     {
-        return operand(operand_type::reg, 0x02);
+        return instruction_operand(operand_type::reg, 0x02);
     }
     else if (o == "%bh")
     {
-        return operand(operand_type::reg, 0x03);
+        return instruction_operand(operand_type::reg, 0x03);
     }
     else if (o == "%cl")
     {
-        return operand(operand_type::reg, 0x04);
+        return instruction_operand(operand_type::reg, 0x04);
     }
     else if (o == "%ch")
     {
-        return operand(operand_type::reg, 0x05);
+        return instruction_operand(operand_type::reg, 0x05);
     }
     else if (o == "%dl")
     {
-        return operand(operand_type::reg, 0x06);
+        return instruction_operand(operand_type::reg, 0x06);
     }
     else if (o == "%dh")
     {
-        return operand(operand_type::reg, 0x07);
+        return instruction_operand(operand_type::reg, 0x07);
     }
     else if (o == "%sil")
     {
-        return operand(operand_type::reg, 0x08);
+        return instruction_operand(operand_type::reg, 0x08);
     }
     else if (o == "%dil")
     {
-        return operand(operand_type::reg, 0x0A);
+        return instruction_operand(operand_type::reg, 0x0A);
     }
     else if (o == "%ax" || o == "%eax")
     {
-        return operand(operand_type::reg, 0x10);
+        return instruction_operand(operand_type::reg, 0x10);
     }
     else if (o == "%bx" || o == "%ebx")
     {
-        return operand(operand_type::reg, 0x11);
+        return instruction_operand(operand_type::reg, 0x11);
     }
     else if (o == "%cx" || o == "%ecx")
     {
-        return operand(operand_type::reg, 0x12);
+        return instruction_operand(operand_type::reg, 0x12);
     }
     else if (o == "%dx" || o == "%edx")
     {
-        return operand(operand_type::reg, 0x13);
+        return instruction_operand(operand_type::reg, 0x13);
     }
     else if (o == "%si" || o == "%esi")
     {
-        return operand(operand_type::reg, 0x14);
+        return instruction_operand(operand_type::reg, 0x14);
     }
     else if (o == "%di" || o == "%edi")
     {
-        return operand(operand_type::reg, 0x15);
+        return instruction_operand(operand_type::reg, 0x15);
     }
 
     throw std::runtime_error("Unknown register operand: '" + o + "'");
+}
+
+} // namespace internal
+
+i386::i386(const int line_number, std::string line_text, line_type type, std::string opcode, std::string operand1,
+           std::string operand2)
+    : asm_line{type, opcode}
+    , line_number_{line_number}
+    , line_text_{std::move(line_text)}
+    , opcode_{internal::parse_opcode(type, opcode)}
+    , operand1_{internal::parse_operand(operand1)}
+    , operand2_{internal::parse_operand(operand2)}
+{
 }

@@ -11,26 +11,26 @@ enum class operand_type
     reg /*ister*/
 };
 
-class operand
+class instruction_operand
 {
 public:
-    operand() = default;
+    instruction_operand() = default;
 
-    operand(const operand_type t, std::string v)
+    instruction_operand(const operand_type t, std::string v)
         : type_{t}
         , value_{std::move(v)}
     {
         assert(type_ == operand_type::literal);
     }
 
-    operand(const operand_type t, const int num)
+    instruction_operand(const operand_type t, const int num)
         : type_{t}
         , reg_num_{num}
     {
         assert(type_ == operand_type::reg);
     }
 
-    bool operator==(const operand &other) const
+    bool operator==(const instruction_operand &other) const
     {
         return type_ == other.type_ && reg_num_ == other.reg_num_ && value_ == other.value_;
     }

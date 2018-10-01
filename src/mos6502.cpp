@@ -2,29 +2,10 @@
 #include <algorithm>
 #include <cassert>
 
-mos6502::mos6502(const mos6502_opcode o)
-    : asm_line(line_type::Instruction, to_string(o))
-    , opcode(o)
-    , is_branch(get_is_branch(o))
-    , is_comparison(get_is_comparison(o))
+namespace internal
 {
-}
 
-mos6502::mos6502(const line_type t, std::string s)
-    : asm_line(t, std::move(s))
-{
-}
-
-mos6502::mos6502(const mos6502_opcode o, operand t_o)
-    : asm_line(line_type::Instruction, to_string(o))
-    , opcode(o)
-    , op(std::move(t_o))
-    , is_branch(get_is_branch(o))
-    , is_comparison(get_is_comparison(o))
-{
-}
-
-auto mos6502::get_is_branch(const mos6502_opcode o) -> bool
+static auto is_branch(const mos6502_opcode o) -> bool
 {
     switch (o)
     {
@@ -67,7 +48,7 @@ auto mos6502::get_is_branch(const mos6502_opcode o) -> bool
     return false;
 }
 
-auto mos6502::get_is_comparison(const mos6502_opcode o) -> bool
+static auto is_comparison(const mos6502_opcode o) -> bool
 {
     switch (o)
     {
@@ -108,6 +89,30 @@ auto mos6502::get_is_comparison(const mos6502_opcode o) -> bool
 
     assert(false && "Missing opcode in mos6502::get_is_comparison");
     return false;
+}
+
+} // namespace internal
+
+mos6502::mos6502(const mos6502_opcode o)
+    : asm_line(line_type::Instruction, to_string(o))
+    , opcode_(o)
+    , is_branch_(internal::is_branch(o))
+    , is_comparison_(internal::is_comparison(o))
+{
+}
+
+mos6502::mos6502(const line_type t, std::string s)
+    : asm_line(t, std::move(s))
+{
+}
+
+mos6502::mos6502(const mos6502_opcode o, instruction_operand t_o)
+    : asm_line(line_type::Instruction, to_string(o))
+    , opcode_(o)
+    , operand_(std::move(t_o))
+    , is_branch_(internal::is_branch(o))
+    , is_comparison_(internal::is_comparison(o))
+{
 }
 
 auto mos6502::to_string(const mos6502_opcode o) -> std::string
@@ -191,9 +196,9 @@ auto mos6502::to_string() const -> std::string
         case asm_line::line_type::Directive:
         case asm_line::line_type::Instruction:
         {
-            const std::string line = "    " + text() + ' ' + op.value();
+            const std::string line = "    " + text() + ' ' + operand_.value();
             return line + std::string(static_cast<size_t>(std::max(15 - static_cast<int>(line.size()), 1)), ' ') +
-                   "; " + comment;
+                   "; " + comment_;
         }
         case asm_line::line_type::MissingOpcode:
         {

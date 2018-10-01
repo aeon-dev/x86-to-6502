@@ -1,7 +1,7 @@
 #pragma once
 
 #include "asm_line.h"
-#include "operand.h"
+#include "instruction_operand.h"
 
 enum class i386_opcode
 {
@@ -45,15 +45,58 @@ enum class i386_opcode
 
 struct i386 : asm_line
 {
-    i386(const int t_line_num, std::string t_line_text, line_type t, std::string t_opcode, std::string o1 = "",
-         std::string o2 = "");
+    i386(const int line_number, std::string line_text, line_type type, std::string opcode, std::string operand1 = "",
+         std::string operand2 = "");
 
-    static auto parse_opcode(line_type t, const std::string &o) -> i386_opcode;
-    static auto parse_operand(std::string o) -> operand;
+    auto line_number() const noexcept
+    {
+        return line_number_;
+    }
 
-    int line_num;
-    std::string line_text;
-    i386_opcode opcode;
-    operand operand1;
-    operand operand2;
+    const auto &line_text() const noexcept
+    {
+        return line_text_;
+    }
+
+    auto line_text_unindented() const
+    {
+        auto text = line_text();
+        if (text[0] == '\t')
+        {
+            text.erase(0, 1);
+        }
+        return text;
+    }
+
+    auto opcode() const noexcept
+    {
+        return opcode_;
+    }
+
+    const auto &operand1() const noexcept
+    {
+        return operand1_;
+    }
+
+    auto &operand1() noexcept
+    {
+        return operand1_;
+    }
+
+    const auto &operand2() const noexcept
+    {
+        return operand2_;
+    }
+
+    auto &operand2() noexcept
+    {
+        return operand2_;
+    }
+
+private:
+    int line_number_;
+    std::string line_text_;
+    i386_opcode opcode_;
+    instruction_operand operand1_;
+    instruction_operand operand2_;
 };

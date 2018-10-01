@@ -15,7 +15,7 @@ add_executable(x86-to-6502
     src/main.cpp
     src/mos6502.cpp
     src/mos6502.h
-    src/operand.h
+    src/instruction_operand.h
 )
 
 target_include_directories(x86-to-6502

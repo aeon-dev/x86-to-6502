@@ -1,5 +1,5 @@
 #include "asm_line.h"
-#include "operand.h"
+#include "instruction_operand.h"
 #include "mos6502.h"
 #include "i386.h"
 
@@ -26,35 +26,35 @@ std::string fixup_8bit_literal(const std::string &s)
     return s;
 }
 
-operand get_register(const int reg_num, const int offset = 0)
+instruction_operand get_register(const int reg_num, const int offset = 0)
 {
     switch (reg_num)
     {
         //  http://sta.c64.org/cbm64mem.html
         case 0x00:
-            return operand(operand_type::literal, "$03"); // unused, fp->int routine pointer
+            return instruction_operand(operand_type::literal, "$03"); // unused, fp->int routine pointer
         case 0x01:
-            return operand(operand_type::literal, "$04");
+            return instruction_operand(operand_type::literal, "$04");
         case 0x02:
-            return operand(operand_type::literal, "$05"); // unused, int->fp routine pointer
+            return instruction_operand(operand_type::literal, "$05"); // unused, int->fp routine pointer
         case 0x03:
-            return operand(operand_type::literal, "$06");
+            return instruction_operand(operand_type::literal, "$06");
         case 0x04:
-            return operand(operand_type::literal, "$fb"); // unused
+            return instruction_operand(operand_type::literal, "$fb"); // unused
         case 0x05:
-            return operand(operand_type::literal, "$fc"); // unused
+            return instruction_operand(operand_type::literal, "$fc"); // unused
         case 0x06:
-            return operand(operand_type::literal, "$fd"); // unused
+            return instruction_operand(operand_type::literal, "$fd"); // unused
         case 0x07:
-            return operand(operand_type::literal, "$fe"); // unused
+            return instruction_operand(operand_type::literal, "$fe"); // unused
         case 0x08:
-            return operand(operand_type::literal, "$22"); // unused
+            return instruction_operand(operand_type::literal, "$22"); // unused
         case 0x09:
-            return operand(operand_type::literal, "$23"); // unused
+            return instruction_operand(operand_type::literal, "$23"); // unused
         case 0x0A:
-            return operand(operand_type::literal, "$39"); // Current BASIC line number
+            return instruction_operand(operand_type::literal, "$39"); // Current BASIC line number
         case 0x0B:
-            return operand(operand_type::literal, "$3a"); // Current BASIC line number
+            return instruction_operand(operand_type::literal, "$3a"); // Current BASIC line number
         case 0x10:
             return get_register(0x00 + offset);
         case 0x11:
@@ -75,7 +75,7 @@ operand get_register(const int reg_num, const int offset = 0)
 }
 
 void translate_instruction(std::vector<mos6502> &instructions, const std::string &line_text, const i386_opcode op,
-                           const operand &o1, const operand &o2)
+                           const instruction_operand &o1, const instruction_operand &o2)
 {
     switch (op)
     {
@@ -99,9 +99,9 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
             }
             else if (o1.is_literal() && o2.is_register())
             {
-                instructions.emplace_back(mos6502_opcode::lda, operand(operand_type::literal, "#<" + o1.value()));
+                instructions.emplace_back(mos6502_opcode::lda, instruction_operand(operand_type::literal, "#<" + o1.value()));
                 instructions.emplace_back(mos6502_opcode::sta, get_register(o2.register_number()));
-                instructions.emplace_back(mos6502_opcode::lda, operand(operand_type::literal, "#>" + o1.value()));
+                instructions.emplace_back(mos6502_opcode::lda, instruction_operand(operand_type::literal, "#>" + o1.value()));
                 instructions.emplace_back(mos6502_opcode::sta, get_register(o2.register_number(), 1));
             }
             else
@@ -112,7 +112,7 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
         case i386_opcode::xorl:
             if (o1.is_register() && o2.is_register() && o1.register_number() == o2.register_number())
             {
-                instructions.emplace_back(mos6502_opcode::lda, operand(operand_type::literal, "#$00"));
+                instructions.emplace_back(mos6502_opcode::lda, instruction_operand(operand_type::literal, "#$00"));
                 instructions.emplace_back(mos6502_opcode::sta, get_register(o2.register_number()));
                 instructions.emplace_back(mos6502_opcode::sta, get_register(o2.register_number(), 1));
             }
@@ -125,13 +125,13 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
             if (o1.is_literal() && o2.is_literal())
             {
                 instructions.emplace_back(mos6502_opcode::lda,
-                                          operand(operand_type::literal, fixup_8bit_literal(o1.value())));
+                                          instruction_operand(operand_type::literal, fixup_8bit_literal(o1.value())));
                 instructions.emplace_back(mos6502_opcode::sta, o2);
             }
             else if (o1.is_literal() && o2.is_register())
             {
                 instructions.emplace_back(mos6502_opcode::lda,
-                                          operand(operand_type::literal, fixup_8bit_literal(o1.value())));
+                                          instruction_operand(operand_type::literal, fixup_8bit_literal(o1.value())));
                 instructions.emplace_back(mos6502_opcode::sta, get_register(o2.register_number()));
             }
             else if (o1.is_register() && o2.is_literal())
@@ -153,7 +153,7 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
             if (o1.is_literal() && o2.is_literal())
             {
                 instructions.emplace_back(mos6502_opcode::lda,
-                                          operand(operand_type::literal, fixup_8bit_literal(o1.value())));
+                                          instruction_operand(operand_type::literal, fixup_8bit_literal(o1.value())));
                 instructions.emplace_back(mos6502_opcode::ORA, o2);
                 instructions.emplace_back(mos6502_opcode::sta, o2);
             }
@@ -166,7 +166,7 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
             else if (o1.is_literal() && o2.is_register())
             {
                 instructions.emplace_back(mos6502_opcode::lda,
-                                          operand(operand_type::literal, fixup_8bit_literal(o1.value())));
+                                          instruction_operand(operand_type::literal, fixup_8bit_literal(o1.value())));
                 instructions.emplace_back(mos6502_opcode::ORA, get_register(o2.register_number()));
                 instructions.emplace_back(mos6502_opcode::sta, get_register(o2.register_number()));
             }
@@ -255,14 +255,14 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
             {
                 // ands the values
                 instructions.emplace_back(mos6502_opcode::lda,
-                                          operand(operand_type::literal, fixup_8bit_literal(o1.value())));
+                                          instruction_operand(operand_type::literal, fixup_8bit_literal(o1.value())));
                 instructions.emplace_back(mos6502_opcode::bit, get_register(o2.register_number()));
             }
             else if (o1.is_literal() && o2.is_literal())
             {
                 // ands the values
                 instructions.emplace_back(mos6502_opcode::lda,
-                                          operand(operand_type::literal, fixup_8bit_literal(o1.value())));
+                                          instruction_operand(operand_type::literal, fixup_8bit_literal(o1.value())));
                 instructions.emplace_back(mos6502_opcode::bit, o2);
             }
             else
@@ -308,13 +308,13 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
                 instructions.emplace_back(mos6502_opcode::lda, get_register(o2.register_number()));
                 instructions.emplace_back(mos6502_opcode::clc);
                 instructions.emplace_back(mos6502_opcode::adc,
-                                          operand(operand_type::literal, fixup_8bit_literal(o1.value())));
+                                          instruction_operand(operand_type::literal, fixup_8bit_literal(o1.value())));
                 instructions.emplace_back(mos6502_opcode::sta, get_register(o2.register_number()));
             }
             else if (o1.is_literal() && o2.is_literal())
             {
                 instructions.emplace_back(mos6502_opcode::lda,
-                                          operand(operand_type::literal, fixup_8bit_literal(o1.value())));
+                                          instruction_operand(operand_type::literal, fixup_8bit_literal(o1.value())));
                 instructions.emplace_back(mos6502_opcode::clc);
                 instructions.emplace_back(mos6502_opcode::adc, o2);
                 instructions.emplace_back(mos6502_opcode::sta, o2);
@@ -336,13 +336,13 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
             {
                 instructions.emplace_back(mos6502_opcode::lda, o2);
                 instructions.emplace_back(mos6502_opcode::cmp,
-                                          operand(operand_type::literal, fixup_8bit_literal(o1.value())));
+                                          instruction_operand(operand_type::literal, fixup_8bit_literal(o1.value())));
             }
             else if (o1.is_literal() && o2.is_register())
             {
                 instructions.emplace_back(mos6502_opcode::lda, get_register(o2.register_number()));
                 instructions.emplace_back(mos6502_opcode::cmp,
-                                          operand(operand_type::literal, fixup_8bit_literal(o1.value())));
+                                          instruction_operand(operand_type::literal, fixup_8bit_literal(o1.value())));
             }
             else
             {
@@ -355,7 +355,7 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
                 const auto reg = get_register(o2.register_number());
                 instructions.emplace_back(mos6502_opcode::lda, reg);
                 instructions.emplace_back(mos6502_opcode::AND,
-                                          operand(operand_type::literal, fixup_8bit_literal(o1.value())));
+                                          instruction_operand(operand_type::literal, fixup_8bit_literal(o1.value())));
                 instructions.emplace_back(mos6502_opcode::sta, reg);
             }
             else if (o1.is_literal() && o2.is_literal())
@@ -363,7 +363,7 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
                 const auto reg = get_register(o2.register_number());
                 instructions.emplace_back(mos6502_opcode::lda, o2);
                 instructions.emplace_back(mos6502_opcode::AND,
-                                          operand(operand_type::literal, fixup_8bit_literal(o1.value())));
+                                          instruction_operand(operand_type::literal, fixup_8bit_literal(o1.value())));
                 instructions.emplace_back(mos6502_opcode::sta, o2);
             }
             else
@@ -376,7 +376,7 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
             {
                 // perform a two's complement of the register location
                 instructions.emplace_back(mos6502_opcode::lda, get_register(o1.register_number()));
-                instructions.emplace_back(mos6502_opcode::eor, operand(operand_type::literal, "#$ff"));
+                instructions.emplace_back(mos6502_opcode::eor, instruction_operand(operand_type::literal, "#$ff"));
                 instructions.emplace_back(mos6502_opcode::sta, get_register(o1.register_number()));
                 instructions.emplace_back(mos6502_opcode::inc, get_register(o1.register_number()));
             }
@@ -390,7 +390,7 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
             {
                 // exclusive or against 0xff to perform a logical not
                 instructions.emplace_back(mos6502_opcode::lda, get_register(o1.register_number()));
-                instructions.emplace_back(mos6502_opcode::eor, operand(operand_type::literal, "#$ff"));
+                instructions.emplace_back(mos6502_opcode::eor, instruction_operand(operand_type::literal, "#$ff"));
                 instructions.emplace_back(mos6502_opcode::sta, get_register(o1.register_number()));
             }
             else
@@ -441,11 +441,11 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
             // o2 <- -cf
             if (o1.is_register() && o2.is_register() && o1.register_number() == o2.register_number())
             {
-                instructions.emplace_back(mos6502_opcode::lda, operand(operand_type::literal, "#$00")); // reset a
+                instructions.emplace_back(mos6502_opcode::lda, instruction_operand(operand_type::literal, "#$00")); // reset a
                 instructions.emplace_back(mos6502_opcode::sbc,
-                                          operand(operand_type::literal, "#$00")); // subtract out the carry flag
+                                          instruction_operand(operand_type::literal, "#$00")); // subtract out the carry flag
                 instructions.emplace_back(mos6502_opcode::eor,
-                                          operand(operand_type::literal, "#$ff"));                  // invert the bits
+                                          instruction_operand(operand_type::literal, "#$ff"));                  // invert the bits
                 instructions.emplace_back(mos6502_opcode::sta, get_register(o2.register_number())); // place the value
             }
             else
@@ -489,7 +489,7 @@ std::string to_string(const LogLevel ll)
 
 void log(LogLevel ll, const i386 &i, const std::string &message)
 {
-    std::cerr << to_string(ll) << ": " << i.line_num << ": " << message << ": `" << i.line_text << "`\n";
+    std::cerr << to_string(ll) << ": " << i.line_number() << ": " << message << ": `" << i.line_text() << "`\n";
 }
 
 void log(LogLevel ll, const int line_no, const std::string &line, const std::string &message)
@@ -518,17 +518,11 @@ void to_mos6502(const i386 &i, std::vector<mos6502> &instructions)
                 //        instructions.emplace_back(ASMLine::Type::Directive, "; " + i.line_text);
 
                 const auto head = instructions.size();
-
-                auto text = i.line_text;
-                if (text[0] == '\t')
-                {
-                    text.erase(0, 1);
-                }
-
-                translate_instruction(instructions, text, i.opcode, i.operand1, i.operand2);
+                auto text = i.line_text_unindented();
+                translate_instruction(instructions, text, i.opcode(), i.operand1(), i.operand2());
 
                 for_each(std::next(instructions.begin(), head), instructions.end(),
-                         [text](auto &ins) { ins.comment = text; });
+                         [text](auto &ins) { ins.set_comment(text); });
                 break;
             }
             case asm_line::line_type::MissingOpcode:
@@ -562,10 +556,10 @@ bool optimize(std::vector<mos6502> &instructions)
     for (size_t op = 0; op < instructions.size() - 1; ++op)
     {
         // look for a transfer of Y -> A immediately followed by A -> Y
-        if (instructions[op].opcode == mos6502_opcode::tya)
+        if (instructions[op].opcode() == mos6502_opcode::tya)
         {
             next_instruction(op);
-            if (instructions[op].opcode == mos6502_opcode::tay)
+            if (instructions[op].opcode() == mos6502_opcode::tay)
             {
                 instructions.erase(std::next(std::begin(instructions), op),
                                    std::next(std::begin(instructions), op + 1));
@@ -577,10 +571,11 @@ bool optimize(std::vector<mos6502> &instructions)
     for (size_t op = 0; op < instructions.size() - 1; ++op)
     {
         // look for a store A -> loc immediately followed by loc -> A
-        if (instructions[op].opcode == mos6502_opcode::sta)
+        if (instructions[op].opcode() == mos6502_opcode::sta)
         {
             const auto next = next_instruction(op);
-            if (instructions[next].opcode == mos6502_opcode::lda && instructions[next].op == instructions[op].op)
+            if (instructions[next].opcode() == mos6502_opcode::lda &&
+                instructions[next].operand() == instructions[op].operand())
             {
                 instructions.erase(std::next(std::begin(instructions), next),
                                    std::next(std::begin(instructions), next + 1));
@@ -591,17 +586,17 @@ bool optimize(std::vector<mos6502> &instructions)
 
     for (size_t op = 0; op < instructions.size() - 1; ++op)
     {
-        if (instructions[op].opcode == mos6502_opcode::lda && instructions[op].op.is_literal())
+        if (instructions[op].opcode() == mos6502_opcode::lda && instructions[op].operand().is_literal())
         {
-            const auto operand = instructions[op].op;
+            const auto operand = instructions[op].operand();
             auto op2 = op + 1;
             // look for multiple stores of the same value
             while (op2 < instructions.size() &&
-                   (instructions[op2].opcode == mos6502_opcode::sta || instructions[op2].is_directive()))
+                   (instructions[op2].opcode() == mos6502_opcode::sta || instructions[op2].is_directive()))
             {
                 ++op2;
             }
-            if (instructions[op2].opcode == mos6502_opcode::lda && operand == instructions[op2].op)
+            if (instructions[op2].opcode() == mos6502_opcode::lda && operand == instructions[op2].operand())
             {
                 instructions.erase(std::next(std::begin(instructions), op2),
                                    std::next(std::begin(instructions), op2 + 1));
@@ -626,22 +621,25 @@ bool fix_long_branches(std::vector<mos6502> &instructions, int &branch_patch_cou
 
     for (size_t op = 0; op < instructions.size(); ++op)
     {
-        if (instructions[op].is_branch &&
-            std::abs(static_cast<int>(labels[instructions[op].op.value()]) - static_cast<int>(op)) * 3 > 255)
+        if (instructions[op].is_branch() &&
+            std::abs(static_cast<int>(labels[instructions[op].operand().value()]) - static_cast<int>(op)) * 3 > 255)
         {
             ++branch_patch_count;
-            const auto going_to = instructions[op].op.value();
+            const auto going_to = instructions[op].operand().value();
             const auto new_pos = "patch_" + std::to_string(branch_patch_count);
             // uh-oh too long of a branch, have to convert this to a jump...
-            if (instructions[op].opcode == mos6502_opcode::bne)
+            if (instructions[op].opcode() == mos6502_opcode::bne)
             {
-                const auto comment = instructions[op].comment;
-                instructions[op] = mos6502(mos6502_opcode::beq, operand(operand_type::literal, new_pos));
+                const auto comment = instructions[op].comment();
+                instructions[op] = mos6502(mos6502_opcode::beq, instruction_operand(operand_type::literal, new_pos));
                 instructions.insert(std::next(std::begin(instructions), op + 1),
-                                    mos6502(mos6502_opcode::jmp, operand(operand_type::literal, going_to)));
+                                    mos6502(mos6502_opcode::jmp, instruction_operand(operand_type::literal, going_to)));
                 instructions.insert(std::next(std::begin(instructions), op + 2),
                                     mos6502(asm_line::line_type::Label, new_pos));
-                instructions[op].comment = instructions[op + 1].comment = instructions[op + 2].comment = comment;
+
+                instructions[op].set_comment(comment);
+                instructions[op + 1].set_comment(comment);
+                instructions[op + 2].set_comment(comment);
                 return true;
             }
             else
@@ -662,22 +660,22 @@ bool fix_overwritten_flags(std::vector<mos6502> &instructions)
 
     for (size_t op = 0; op < instructions.size(); ++op)
     {
-        if (instructions[op].is_comparison)
+        if (instructions[op].is_comparison())
         {
             auto op2 = op + 1;
-            while (op2 < instructions.size() && !instructions[op2].is_comparison && !instructions[op2].is_branch)
+            while (op2 < instructions.size() && !instructions[op2].is_comparison() && !instructions[op2].is_branch())
             {
                 ++op2;
             }
 
-            if (op2 < instructions.size() && (op2 - op) > 1 && instructions[op2 - 1].opcode != mos6502_opcode::plp)
+            if (op2 < instructions.size() && (op2 - op) > 1 && instructions[op2 - 1].opcode() != mos6502_opcode::plp)
             {
-                if (instructions[op2].is_comparison)
+                if (instructions[op2].is_comparison())
                 {
                     continue;
                 }
 
-                if (instructions[op2].is_branch)
+                if (instructions[op2].is_branch())
                 {
                     // insert a pull of processor status before the branch
                     instructions.insert(std::next(std::begin(instructions), op2), mos6502(mos6502_opcode::plp));
@@ -771,10 +769,10 @@ int main()
     {
         if (i.is_instruction())
         {
-            if (labels.count(i.operand1.value()) != 0)
+            if (labels.count(i.operand1().value()) != 0)
             {
-                used_labels.insert(i.operand1.value());
-                used_labels.insert(i.operand2.value());
+                used_labels.insert(i.operand1().value());
+                used_labels.insert(i.operand2().value());
             }
         }
     }
@@ -814,16 +812,16 @@ int main()
             i.set_text(new_labels.at(i.text()));
         }
 
-        const auto itr1 = new_labels.find(i.operand1.value());
+        const auto itr1 = new_labels.find(i.operand1().value());
         if (itr1 != new_labels.end())
         {
-            i.operand1.set_value(itr1->second);
+            i.operand1().set_value(itr1->second);
         }
 
-        const auto itr2 = new_labels.find(i.operand2.value());
+        const auto itr2 = new_labels.find(i.operand2().value());
         if (itr2 != new_labels.end())
         {
-            i.operand2.set_value(itr2->second);
+            i.operand2().set_value(itr2->second);
         }
     }
 
