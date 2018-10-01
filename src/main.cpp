@@ -55,6 +55,10 @@ instruction_operand get_register(const int reg_num, const int offset = 0)
             return instruction_operand(operand_type::literal, "$39"); // Current BASIC line number
         case 0x0B:
             return instruction_operand(operand_type::literal, "$3a"); // Current BASIC line number
+        case 0x0C:
+            return instruction_operand(operand_type::literal, "$3d"); // Pointer to next BASIC instruction
+        case 0x0D:
+            return instruction_operand(operand_type::literal, "$3e"); // Pointer to next BASIC instruction
         case 0x10:
             return get_register(0x00 + offset);
         case 0x11:
@@ -68,7 +72,7 @@ instruction_operand get_register(const int reg_num, const int offset = 0)
         case 0x15:
             return get_register(0x0A + offset);
         case 0x16:
-            return instruction_operand(operand_type::literal, "$0b"); // Current BASIC token during tokenization.
+            return get_register(0x0C + offset);
         default:
             break;
     }
