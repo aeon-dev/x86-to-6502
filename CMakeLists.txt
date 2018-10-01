@@ -9,6 +9,9 @@ set(CMAKE_CXX_STANDARD 17)
 # analysis tools.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+include(CTest)
+enable_testing()
+
 if (MSVC)
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.10)
         message(FATAL_ERROR "Requires Visual Studio 2017 or higher!")
