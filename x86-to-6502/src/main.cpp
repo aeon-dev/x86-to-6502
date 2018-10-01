@@ -1,7 +1,7 @@
-#include "asm_line.h"
-#include "instruction_operand.h"
-#include "mos6502.h"
-#include "i386.h"
+#include <x86-to-6502/asm_line.h>
+#include <x86-to-6502/instruction_operand.h>
+#include <x86-to-6502/mos6502.h>
+#include <x86-to-6502/i386.h>
 
 #include <iostream>
 #include <vector>

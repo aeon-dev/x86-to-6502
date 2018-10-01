@@ -1,4 +1,4 @@
-#include "i386.h"
+#include <x86-to-6502/i386.h>
 
 namespace internal
 {

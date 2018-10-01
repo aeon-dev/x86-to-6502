@@ -1,4 +1,4 @@
-#include "mos6502.h"
+#include <x86-to-6502/mos6502.h>
 #include <algorithm>
 #include <cassert>
 
