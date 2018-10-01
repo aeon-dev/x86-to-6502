@@ -8,7 +8,7 @@ Why not? I figured I just barely knew some x86 and some 6502, so why not learn s
 
 # Example
 
-After compilation (requires a full C++14 compiler), you can run something like this:
+After compilation (requires a full C++17 compiler), you can run something like this:
 
 ```assembly_x86
 // test.asm
