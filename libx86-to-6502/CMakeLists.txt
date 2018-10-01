@@ -18,3 +18,5 @@ target_include_directories(libx86-to-6502
     PRIVATE src
     PUBLIC include
 )
+
+add_subdirectory(tests)
