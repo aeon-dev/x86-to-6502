@@ -3,9 +3,9 @@
 #include <string>
 #include <utility>
 
-struct ASMLine
+struct asm_line
 {
-    enum class Type
+    enum class line_type
     {
         Label,
         Instruction,
@@ -13,12 +13,12 @@ struct ASMLine
         MissingOpcode
     };
 
-    ASMLine(Type t, std::string te)
+    asm_line(const line_type t, std::string te)
         : type{t}
         , text{std::move(te)}
     {
     }
 
-    Type type;
+    line_type type;
     std::string text;
 };

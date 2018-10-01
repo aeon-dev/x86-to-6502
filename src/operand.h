@@ -4,37 +4,37 @@
 #include <utility>
 #include <cassert>
 
-struct Operand
+enum class operand_type
 {
-    enum class Type
-    {
-        empty,
-        literal,
-        reg /*ister*/
-    };
+    empty,
+    literal,
+    reg /*ister*/
+};
 
-    Type type = Type::empty;
+struct operand
+{
+    operand_type type = operand_type::empty;
     int reg_num = 0;
     std::string value;
 
-    Operand() = default;
+    operand() = default;
 
-    bool operator==(const Operand &other) const
+    bool operator==(const operand &other) const
     {
         return type == other.type && reg_num == other.reg_num && value == other.value;
     }
 
-    Operand(const Type t, std::string v)
+    operand(const operand_type t, std::string v)
         : type(t)
         , value(std::move(v))
     {
-        assert(type == Type::literal);
+        assert(type == operand_type::literal);
     }
 
-    Operand(const Type t, const int num)
+    operand(const operand_type t, const int num)
         : type(t)
         , reg_num(num)
     {
-        assert(type == Type::reg);
+        assert(type == operand_type::reg);
     }
 };

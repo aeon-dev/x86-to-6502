@@ -3,57 +3,57 @@
 #include "asm_line.h"
 #include "operand.h"
 
-struct i386 : ASMLine
+enum class i386_opcode
 {
-    enum class OpCode
-    {
-        unknown,
-        movzbl,
-        movzwl,
-        shrb,
-        shrl,
-        xorl,
-        andl,
-        andb,
-        addb,
-        ret,
-        movb,
-        cmpb,
-        movl,
-        jmp,
-        jne,
-        je,
-        js,
-        testb,
-        incl,
-        incb,
-        decl,
-        decb,
-        sarl,
-        addl,
-        subl,
-        subb,
-        sall,
-        orl,
-        orb,
-        rep,
-        pushl,
-        sbbb,
-        negb,
-        notb,
-        retl,
-        calll
-    };
+    unknown,
+    movzbl,
+    movzwl,
+    shrb,
+    shrl,
+    xorl,
+    andl,
+    andb,
+    addb,
+    ret,
+    movb,
+    cmpb,
+    movl,
+    jmp,
+    jne,
+    je,
+    js,
+    testb,
+    incl,
+    incb,
+    decl,
+    decb,
+    sarl,
+    addl,
+    subl,
+    subb,
+    sall,
+    orl,
+    orb,
+    rep,
+    pushl,
+    sbbb,
+    negb,
+    notb,
+    retl,
+    calll
+};
 
-    i386(const int t_line_num, std::string t_line_text, Type t, std::string t_opcode, std::string o1 = "",
+struct i386 : asm_line
+{
+    i386(const int t_line_num, std::string t_line_text, line_type t, std::string t_opcode, std::string o1 = "",
          std::string o2 = "");
 
-    static auto parse_opcode(Type t, const std::string &o) -> OpCode;
-    static auto parse_operand(std::string o) -> Operand;
+    static auto parse_opcode(line_type t, const std::string &o) -> i386_opcode;
+    static auto parse_operand(std::string o) -> operand;
 
     int line_num;
     std::string line_text;
-    OpCode opcode;
-    Operand operand1;
-    Operand operand2;
+    i386_opcode opcode;
+    operand operand1;
+    operand operand2;
 };

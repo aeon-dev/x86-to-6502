@@ -2,21 +2,21 @@
 #include <algorithm>
 #include <cassert>
 
-mos6502::mos6502(const OpCode o)
-    : ASMLine(Type::Instruction, to_string(o))
+mos6502::mos6502(const mos6502_opcode o)
+    : asm_line(line_type::Instruction, to_string(o))
     , opcode(o)
     , is_branch(get_is_branch(o))
     , is_comparison(get_is_comparison(o))
 {
 }
 
-mos6502::mos6502(const Type t, std::string s)
-    : ASMLine(t, std::move(s))
+mos6502::mos6502(const line_type t, std::string s)
+    : asm_line(t, std::move(s))
 {
 }
 
-mos6502::mos6502(const OpCode o, Operand t_o)
-    : ASMLine(Type::Instruction, to_string(o))
+mos6502::mos6502(const mos6502_opcode o, operand t_o)
+    : asm_line(line_type::Instruction, to_string(o))
     , opcode(o)
     , op(std::move(t_o))
     , is_branch(get_is_branch(o))
@@ -24,42 +24,42 @@ mos6502::mos6502(const OpCode o, Operand t_o)
 {
 }
 
-auto mos6502::get_is_branch(const OpCode o) -> bool
+auto mos6502::get_is_branch(const mos6502_opcode o) -> bool
 {
     switch (o)
     {
-        case OpCode::beq:
-        case OpCode::bne:
-        case OpCode::bmi:
+        case mos6502_opcode::beq:
+        case mos6502_opcode::bne:
+        case mos6502_opcode::bmi:
             return true;
-        case OpCode::lda:
-        case OpCode::ldy:
-        case OpCode::tay:
-        case OpCode::tya:
-        case OpCode::cpy:
-        case OpCode::eor:
-        case OpCode::sta:
-        case OpCode::sty:
-        case OpCode::pha:
-        case OpCode::pla:
-        case OpCode::php:
-        case OpCode::plp:
-        case OpCode::lsr:
-        case OpCode::ror:
-        case OpCode::AND:
-        case OpCode::inc:
-        case OpCode::dec:
-        case OpCode::ORA:
-        case OpCode::cmp:
-        case OpCode::jmp:
-        case OpCode::adc:
-        case OpCode::sbc:
-        case OpCode::rts:
-        case OpCode::clc:
-        case OpCode::sec:
-        case OpCode::bit:
-        case OpCode::jsr:
-        case OpCode::unknown:
+        case mos6502_opcode::lda:
+        case mos6502_opcode::ldy:
+        case mos6502_opcode::tay:
+        case mos6502_opcode::tya:
+        case mos6502_opcode::cpy:
+        case mos6502_opcode::eor:
+        case mos6502_opcode::sta:
+        case mos6502_opcode::sty:
+        case mos6502_opcode::pha:
+        case mos6502_opcode::pla:
+        case mos6502_opcode::php:
+        case mos6502_opcode::plp:
+        case mos6502_opcode::lsr:
+        case mos6502_opcode::ror:
+        case mos6502_opcode::AND:
+        case mos6502_opcode::inc:
+        case mos6502_opcode::dec:
+        case mos6502_opcode::ORA:
+        case mos6502_opcode::cmp:
+        case mos6502_opcode::jmp:
+        case mos6502_opcode::adc:
+        case mos6502_opcode::sbc:
+        case mos6502_opcode::rts:
+        case mos6502_opcode::clc:
+        case mos6502_opcode::sec:
+        case mos6502_opcode::bit:
+        case mos6502_opcode::jsr:
+        case mos6502_opcode::unknown:
             return false;
     }
 
@@ -67,42 +67,42 @@ auto mos6502::get_is_branch(const OpCode o) -> bool
     return false;
 }
 
-auto mos6502::get_is_comparison(const OpCode o) -> bool
+auto mos6502::get_is_comparison(const mos6502_opcode o) -> bool
 {
     switch (o)
     {
-        case OpCode::cmp:
-        case OpCode::cpy:
-        case OpCode::bit:
+        case mos6502_opcode::cmp:
+        case mos6502_opcode::cpy:
+        case mos6502_opcode::bit:
             return true;
-        case OpCode::lda:
-        case OpCode::ldy:
-        case OpCode::tay:
-        case OpCode::tya:
-        case OpCode::eor:
-        case OpCode::sta:
-        case OpCode::sty:
-        case OpCode::pha:
-        case OpCode::pla:
-        case OpCode::php:
-        case OpCode::plp:
-        case OpCode::lsr:
-        case OpCode::ror:
-        case OpCode::AND:
-        case OpCode::inc:
-        case OpCode::dec:
-        case OpCode::ORA:
-        case OpCode::jmp:
-        case OpCode::bne:
-        case OpCode::bmi:
-        case OpCode::beq:
-        case OpCode::adc:
-        case OpCode::sbc:
-        case OpCode::rts:
-        case OpCode::clc:
-        case OpCode::sec:
-        case OpCode::jsr:
-        case OpCode::unknown:
+        case mos6502_opcode::lda:
+        case mos6502_opcode::ldy:
+        case mos6502_opcode::tay:
+        case mos6502_opcode::tya:
+        case mos6502_opcode::eor:
+        case mos6502_opcode::sta:
+        case mos6502_opcode::sty:
+        case mos6502_opcode::pha:
+        case mos6502_opcode::pla:
+        case mos6502_opcode::php:
+        case mos6502_opcode::plp:
+        case mos6502_opcode::lsr:
+        case mos6502_opcode::ror:
+        case mos6502_opcode::AND:
+        case mos6502_opcode::inc:
+        case mos6502_opcode::dec:
+        case mos6502_opcode::ORA:
+        case mos6502_opcode::jmp:
+        case mos6502_opcode::bne:
+        case mos6502_opcode::bmi:
+        case mos6502_opcode::beq:
+        case mos6502_opcode::adc:
+        case mos6502_opcode::sbc:
+        case mos6502_opcode::rts:
+        case mos6502_opcode::clc:
+        case mos6502_opcode::sec:
+        case mos6502_opcode::jsr:
+        case mos6502_opcode::unknown:
             return false;
     }
 
@@ -110,71 +110,71 @@ auto mos6502::get_is_comparison(const OpCode o) -> bool
     return false;
 }
 
-auto mos6502::to_string(const OpCode o) -> std::string
+auto mos6502::to_string(const mos6502_opcode o) -> std::string
 {
     switch (o)
     {
-        case OpCode::lda:
+        case mos6502_opcode::lda:
             return "lda";
-        case OpCode::ldy:
+        case mos6502_opcode::ldy:
             return "ldy";
-        case OpCode::tay:
+        case mos6502_opcode::tay:
             return "tay";
-        case OpCode::tya:
+        case mos6502_opcode::tya:
             return "tya";
-        case OpCode::cpy:
+        case mos6502_opcode::cpy:
             return "cpy";
-        case OpCode::eor:
+        case mos6502_opcode::eor:
             return "eor";
-        case OpCode::sta:
+        case mos6502_opcode::sta:
             return "sta";
-        case OpCode::sty:
+        case mos6502_opcode::sty:
             return "sty";
-        case OpCode::pha:
+        case mos6502_opcode::pha:
             return "pha";
-        case OpCode::pla:
+        case mos6502_opcode::pla:
             return "pla";
-        case OpCode::php:
+        case mos6502_opcode::php:
             return "php";
-        case OpCode::plp:
+        case mos6502_opcode::plp:
             return "plp";
-        case OpCode::lsr:
+        case mos6502_opcode::lsr:
             return "lsr";
-        case OpCode::ror:
+        case mos6502_opcode::ror:
             return "ror";
-        case OpCode::AND:
+        case mos6502_opcode::AND:
             return "and";
-        case OpCode::inc:
+        case mos6502_opcode::inc:
             return "inc";
-        case OpCode::dec:
+        case mos6502_opcode::dec:
             return "dec";
-        case OpCode::ORA:
+        case mos6502_opcode::ORA:
             return "ora";
-        case OpCode::cmp:
+        case mos6502_opcode::cmp:
             return "cmp";
-        case OpCode::bne:
+        case mos6502_opcode::bne:
             return "bne";
-        case OpCode::bmi:
+        case mos6502_opcode::bmi:
             return "bmi";
-        case OpCode::beq:
+        case mos6502_opcode::beq:
             return "beq";
-        case OpCode::jmp:
+        case mos6502_opcode::jmp:
             return "jmp";
-        case OpCode::adc:
+        case mos6502_opcode::adc:
             return "adc";
-        case OpCode::sbc:
+        case mos6502_opcode::sbc:
             return "sbc";
-        case OpCode::rts:
+        case mos6502_opcode::rts:
             return "rts";
-        case OpCode::clc:
+        case mos6502_opcode::clc:
             return "clc";
-        case OpCode::sec:
+        case mos6502_opcode::sec:
             return "sec";
-        case OpCode::bit:
+        case mos6502_opcode::bit:
             return "bit";
-        case OpCode::jsr:
+        case mos6502_opcode::jsr:
             return "jsr";
-        case OpCode::unknown:
+        case mos6502_opcode::unknown:
             return "";
     }
 
@@ -186,16 +186,16 @@ auto mos6502::to_string() const -> std::string
 {
     switch (type)
     {
-        case ASMLine::Type::Label:
+        case asm_line::line_type::Label:
             return text; // + ':';
-        case ASMLine::Type::Directive:
-        case ASMLine::Type::Instruction:
+        case asm_line::line_type::Directive:
+        case asm_line::line_type::Instruction:
         {
             const std::string line = "    " + text + ' ' + op.value;
             return line + std::string(static_cast<size_t>(std::max(15 - static_cast<int>(line.size()), 1)), ' ') +
                    "; " + comment;
         }
-        case ASMLine::Type::MissingOpcode:
+        case asm_line::line_type::MissingOpcode:
         {
             return ";   " + text + " !!!MISSING!!! !!!MISSING!!!";
         }

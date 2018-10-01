@@ -3,57 +3,57 @@
 #include "asm_line.h"
 #include "operand.h"
 
-struct mos6502 : ASMLine
+enum class mos6502_opcode
 {
-    enum class OpCode
-    {
-        unknown,
-        lda,
-        ldy,
-        tay,
-        tya,
-        cpy,
-        eor,
-        sta,
-        sty,
-        pha,
-        pla,
-        php,
-        plp,
-        lsr,
-        ror,
-        AND,
-        inc,
-        dec,
-        ORA,
-        cmp,
-        bne,
-        beq,
-        bmi,
-        jmp,
-        adc,
-        sbc,
-        rts,
-        clc,
-        sec,
-        bit,
-        jsr
-    };
+    unknown,
+    lda,
+    ldy,
+    tay,
+    tya,
+    cpy,
+    eor,
+    sta,
+    sty,
+    pha,
+    pla,
+    php,
+    plp,
+    lsr,
+    ror,
+    AND,
+    inc,
+    dec,
+    ORA,
+    cmp,
+    bne,
+    beq,
+    bmi,
+    jmp,
+    adc,
+    sbc,
+    rts,
+    clc,
+    sec,
+    bit,
+    jsr
+};
 
-    explicit mos6502(const OpCode o);
-    mos6502(const Type t, std::string s);
-    mos6502(const OpCode o, Operand t_o);
+struct mos6502 : asm_line
+{
+    explicit mos6502(const mos6502_opcode o);
+    mos6502(const line_type t, std::string s);
+    mos6502(const mos6502_opcode o, operand t_o);
 
-    static auto get_is_branch(const OpCode o) -> bool;
+    static auto get_is_branch(const mos6502_opcode o) -> bool;
 
-    static auto get_is_comparison(const OpCode o) -> bool;
+    static auto get_is_comparison(const mos6502_opcode o) -> bool;
 
-    static auto to_string(const OpCode o) -> std::string;
+    static auto to_string(const mos6502_opcode o) -> std::string;
 
     auto to_string() const -> std::string;
 
-    OpCode opcode = OpCode::unknown;
-    Operand op;
+    mos6502_opcode opcode = mos6502_opcode::unknown;
+    operand op;
     std::string comment;
     bool is_branch = false;
     bool is_comparison = false;

@@ -1,7 +1,8 @@
 #include "i386.h"
 
-i386::i386(const int t_line_num, std::string t_line_text, Type t, std::string t_opcode, std::string o1, std::string o2)
-    : ASMLine{t, t_opcode}
+i386::i386(const int t_line_num, std::string t_line_text, line_type t, std::string t_opcode, std::string o1,
+           std::string o2)
+    : asm_line{t, t_opcode}
     , line_num{t_line_num}
     , line_text{std::move(t_line_text)}
     , opcode{parse_opcode(t, t_opcode)}
@@ -10,88 +11,88 @@ i386::i386(const int t_line_num, std::string t_line_text, Type t, std::string t_
 {
 }
 
-auto i386::parse_opcode(Type t, const std::string &o) -> i386::OpCode
+auto i386::parse_opcode(line_type t, const std::string &o) -> i386_opcode
 {
     switch (t)
     {
-        case Type::Label:
-            return OpCode::unknown;
-        case Type::Directive:
-            return OpCode::unknown;
-        case Type::Instruction:
+        case line_type::Label:
+            return i386_opcode::unknown;
+        case line_type::Directive:
+            return i386_opcode::unknown;
+        case line_type::Instruction:
         {
             if (o == "movzwl")
-                return OpCode::movzwl;
+                return i386_opcode::movzwl;
             if (o == "movzbl")
-                return OpCode::movzbl;
+                return i386_opcode::movzbl;
             if (o == "shrb")
-                return OpCode::shrb;
+                return i386_opcode::shrb;
             if (o == "shrl")
-                return OpCode::shrl;
+                return i386_opcode::shrl;
             if (o == "xorl")
-                return OpCode::xorl;
+                return i386_opcode::xorl;
             if (o == "andl")
-                return OpCode::andl;
+                return i386_opcode::andl;
             if (o == "ret")
-                return OpCode::ret;
+                return i386_opcode::ret;
             if (o == "movb")
-                return OpCode::movb;
+                return i386_opcode::movb;
             if (o == "cmpb")
-                return OpCode::cmpb;
+                return i386_opcode::cmpb;
             if (o == "movl")
-                return OpCode::movl;
+                return i386_opcode::movl;
             if (o == "jmp")
-                return OpCode::jmp;
+                return i386_opcode::jmp;
             if (o == "testb")
-                return OpCode::testb;
+                return i386_opcode::testb;
             if (o == "incl")
-                return OpCode::incl;
+                return i386_opcode::incl;
             if (o == "sarl")
-                return OpCode::sarl;
+                return i386_opcode::sarl;
             if (o == "decl")
-                return OpCode::decl;
+                return i386_opcode::decl;
             if (o == "jne")
-                return OpCode::jne;
+                return i386_opcode::jne;
             if (o == "je")
-                return OpCode::je;
+                return i386_opcode::je;
             if (o == "js")
-                return OpCode::js;
+                return i386_opcode::js;
             if (o == "subl")
-                return OpCode::subl;
+                return i386_opcode::subl;
             if (o == "subb")
-                return OpCode::subb;
+                return i386_opcode::subb;
             if (o == "addl")
-                return OpCode::addl;
+                return i386_opcode::addl;
             if (o == "addb")
-                return OpCode::addb;
+                return i386_opcode::addb;
             if (o == "sall")
-                return OpCode::sall;
+                return i386_opcode::sall;
             if (o == "orl")
-                return OpCode::orl;
+                return i386_opcode::orl;
             if (o == "andb")
-                return OpCode::andb;
+                return i386_opcode::andb;
             if (o == "orb")
-                return OpCode::orb;
+                return i386_opcode::orb;
             if (o == "decb")
-                return OpCode::decb;
+                return i386_opcode::decb;
             if (o == "incb")
-                return OpCode::incb;
+                return i386_opcode::incb;
             if (o == "rep")
-                return OpCode::rep;
+                return i386_opcode::rep;
             if (o == "notb")
-                return OpCode::notb;
+                return i386_opcode::notb;
             if (o == "negb")
-                return OpCode::negb;
+                return i386_opcode::negb;
             if (o == "sbbb")
-                return OpCode::sbbb;
+                return i386_opcode::sbbb;
             if (o == "pushl")
-                return OpCode::pushl;
+                return i386_opcode::pushl;
             if (o == "retl")
-                return OpCode::retl;
+                return i386_opcode::retl;
             if (o == "calll")
-                return OpCode::calll;
+                return i386_opcode::calll;
 
-            return OpCode::unknown;
+            return i386_opcode::unknown;
         }
         default:
             break;
@@ -100,77 +101,77 @@ auto i386::parse_opcode(Type t, const std::string &o) -> i386::OpCode
     throw std::runtime_error("Unknown opcode: " + o);
 }
 
-auto i386::parse_operand(std::string o) -> Operand
+auto i386::parse_operand(std::string o) -> operand
 {
     if (o.empty())
         return {};
 
     if (o[0] != '%')
-        return Operand(Operand::Type::literal, std::move(o));
+        return operand(operand_type::literal, std::move(o));
 
     if (o == "%al")
     {
-        return Operand(Operand::Type::reg, 0x00);
+        return operand(operand_type::reg, 0x00);
     }
     else if (o == "%ah")
     {
-        return Operand(Operand::Type::reg, 0x01);
+        return operand(operand_type::reg, 0x01);
     }
     else if (o == "%bl")
     {
-        return Operand(Operand::Type::reg, 0x02);
+        return operand(operand_type::reg, 0x02);
     }
     else if (o == "%bh")
     {
-        return Operand(Operand::Type::reg, 0x03);
+        return operand(operand_type::reg, 0x03);
     }
     else if (o == "%cl")
     {
-        return Operand(Operand::Type::reg, 0x04);
+        return operand(operand_type::reg, 0x04);
     }
     else if (o == "%ch")
     {
-        return Operand(Operand::Type::reg, 0x05);
+        return operand(operand_type::reg, 0x05);
     }
     else if (o == "%dl")
     {
-        return Operand(Operand::Type::reg, 0x06);
+        return operand(operand_type::reg, 0x06);
     }
     else if (o == "%dh")
     {
-        return Operand(Operand::Type::reg, 0x07);
+        return operand(operand_type::reg, 0x07);
     }
     else if (o == "%sil")
     {
-        return Operand(Operand::Type::reg, 0x08);
+        return operand(operand_type::reg, 0x08);
     }
     else if (o == "%dil")
     {
-        return Operand(Operand::Type::reg, 0x0A);
+        return operand(operand_type::reg, 0x0A);
     }
     else if (o == "%ax" || o == "%eax")
     {
-        return Operand(Operand::Type::reg, 0x10);
+        return operand(operand_type::reg, 0x10);
     }
     else if (o == "%bx" || o == "%ebx")
     {
-        return Operand(Operand::Type::reg, 0x11);
+        return operand(operand_type::reg, 0x11);
     }
     else if (o == "%cx" || o == "%ecx")
     {
-        return Operand(Operand::Type::reg, 0x12);
+        return operand(operand_type::reg, 0x12);
     }
     else if (o == "%dx" || o == "%edx")
     {
-        return Operand(Operand::Type::reg, 0x13);
+        return operand(operand_type::reg, 0x13);
     }
     else if (o == "%si" || o == "%esi")
     {
-        return Operand(Operand::Type::reg, 0x14);
+        return operand(operand_type::reg, 0x14);
     }
     else if (o == "%di" || o == "%edi")
     {
-        return Operand(Operand::Type::reg, 0x15);
+        return operand(operand_type::reg, 0x15);
     }
 
     throw std::runtime_error("Unknown register operand: '" + o + "'");
