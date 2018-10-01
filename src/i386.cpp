@@ -175,6 +175,26 @@ static auto parse_operand(std::string o) -> instruction_operand
 
 } // namespace internal
 
+i386::i386(const int line_number)
+    : asm_line{}
+    , line_number_{line_number}
+    , line_text_{}
+    , opcode_{}
+    , operand1_{}
+    , operand2_{}
+{
+}
+
+i386::i386(const int line_number, std::string line_text)
+    : asm_line{std::move(line_text)}
+    , line_number_{line_number}
+    , line_text_{}
+    , opcode_{}
+    , operand1_{}
+    , operand2_{}
+{
+}
+
 i386::i386(const int line_number, std::string line_text, line_type type, std::string opcode, std::string operand1,
            std::string operand2)
     : asm_line{type, opcode}

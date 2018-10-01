@@ -771,7 +771,7 @@ bool fix_overwritten_flags(std::vector<mos6502> &instructions)
     return false;
 }
 
-int main()
+auto parse_i386_instruction(const std::string &line, const int lineno) -> i386
 {
     std::regex Comment(R"(\s*\#.*)");
     std::regex Label(R"(^(\S+):.*)");
@@ -780,6 +780,43 @@ int main()
     std::regex BinaryInstruction(R"(^\t(\S+)\s+(\S+),\s+(\S+))");
     std::regex Instruction(R"(^\t(\S+))");
 
+    std::smatch match;
+    if (std::regex_match(line, match, Label))
+    {
+        return {lineno, line, asm_line::line_type::Label, match[1]};
+    }
+    else if (std::regex_match(line, match, Comment))
+    {
+        return {lineno, line};
+    }
+    else if (std::regex_match(line, match, Directive))
+    {
+        return {lineno, line, asm_line::line_type::Directive, match[1]};
+    }
+    else if (std::regex_match(line, match, UnaryInstruction))
+    {
+        return {lineno, line, asm_line::line_type::Instruction, match[1], match[2]};
+    }
+    else if (std::regex_match(line, match, BinaryInstruction))
+    {
+        return {lineno, line, asm_line::line_type::Instruction, match[1], match[2], match[3]};
+    }
+    else if (std::regex_match(line, match, Instruction))
+    {
+        return {lineno, line, asm_line::line_type::Instruction, match[1]};
+    }
+    else if (line.empty())
+    {
+        return i386{lineno};
+    }
+    else
+    {
+        throw std::runtime_error("Unparsed Input, Line: " + std::to_string(lineno));
+    }
+}
+
+int main()
+{
     int lineno = 0;
 
     std::vector<i386> instructions;
@@ -791,39 +828,10 @@ int main()
 
         try
         {
-            std::smatch match;
-            if (std::regex_match(line, match, Label))
-            {
-                instructions.emplace_back(lineno, line, asm_line::line_type::Label, match[1]);
-            }
-            else if (std::regex_match(line, match, Comment))
-            {
-                // don't care about comments
-            }
-            else if (std::regex_match(line, match, Directive))
-            {
-                instructions.emplace_back(lineno, line, asm_line::line_type::Directive, match[1]);
-            }
-            else if (std::regex_match(line, match, UnaryInstruction))
-            {
-                instructions.emplace_back(lineno, line, asm_line::line_type::Instruction, match[1], match[2]);
-            }
-            else if (std::regex_match(line, match, BinaryInstruction))
-            {
-                instructions.emplace_back(lineno, line, asm_line::line_type::Instruction, match[1], match[2], match[3]);
-            }
-            else if (std::regex_match(line, match, Instruction))
-            {
-                instructions.emplace_back(lineno, line, asm_line::line_type::Instruction, match[1]);
-            }
-            else if (line.empty())
-            {
-                // std::cout << "EmptyLine\n";
-            }
-            else
-            {
-                throw std::runtime_error("Unparsed Input, Line: " + std::to_string(lineno));
-            }
+            auto instruction = parse_i386_instruction(line, lineno);
+
+            if (!instruction.is_empty() && !instruction.is_comment())
+                instructions.emplace_back(std::move(instruction));
         }
         catch (const std::exception &e)
         {

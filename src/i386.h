@@ -45,6 +45,12 @@ enum class i386_opcode
 
 struct i386 : asm_line
 {
+    // Empty line
+    explicit i386(const int line_number);
+
+    // Comment
+    i386(const int line_number, std::string line_text);
+
     i386(const int line_number, std::string line_text, line_type type, std::string opcode, std::string operand1 = "",
          std::string operand2 = "");
 
