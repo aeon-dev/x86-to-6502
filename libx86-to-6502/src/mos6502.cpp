@@ -192,6 +192,7 @@ auto mos6502::to_string() const -> std::string
 {
     switch (type())
     {
+        case asm_line::line_type::Comment:
         case asm_line::line_type::Label:
             return text(); // + ':';
         case asm_line::line_type::Directive:
@@ -205,6 +206,9 @@ auto mos6502::to_string() const -> std::string
         {
             return ";   " + text() + " !!!MISSING!!! !!!MISSING!!!";
         }
+        case line_type::Empty:
+        default:
+            break;
     }
 
     throw std::runtime_error("Unable to render: " + text());

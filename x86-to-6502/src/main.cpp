@@ -617,6 +617,10 @@ void to_mos6502(const i386 &i, std::vector<mos6502> &instructions)
                 std::cerr << "Missing opcode: " << i.text() << '\n';
                 break;
             }
+            case asm_line::line_type::Empty:
+            case asm_line::line_type::Comment:
+            default:
+                break;
         }
     }
     catch (const std::exception &e)
