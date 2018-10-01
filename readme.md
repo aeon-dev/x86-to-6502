@@ -1,3 +1,5 @@
+[![Travis-CI](https://travis-ci.org/robindegen/x86-to-6502.svg?branch=dev)](https://travis-ci.org/robindegen/x86-to-6502) [![Appveyor](https://ci.appveyor.com/api/projects/status/xka540criul4tf05?svg=true)](https://ci.appveyor.com/project/robindegen/x86-to-6502)
+
 # About
 
 Attempts to translate x86 assembly into mos6502 assembly. Forked from Jason Turner's implementation at https://github.com/lefticus/x86-to-6502
