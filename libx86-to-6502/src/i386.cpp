@@ -212,7 +212,7 @@ auto i386::parse(const std::string &line, const int line_number) -> i386
     std::regex Comment(R"(\s*\#.*)");
     std::regex Label(R"(^(\S+):.*)");
     std::regex Directive(R"(^\t?(\..+))");
-    std::regex UnaryInstruction(R"(^\t(\S+)\s+(\S+))");
+    std::regex UnaryInstruction(R"(^\t(\S+)\s+(\S+)(\s+#.*)?)");
     std::regex BinaryInstruction(R"(^\t(\S+)\s+(\S+),\s+(\S+))");
     std::regex Instruction(R"(^\t(\S+))");
 

@@ -42,6 +42,10 @@ TEST(test_parse_x86_asm_line, test_basic_unairy_instruction_line)
     test_line("\tpushl\t$86", asm_line::line_type::Instruction);
     test_line("\tcalll\t_test", asm_line::line_type::Instruction);
     test_line("\tdecb\t%al", asm_line::line_type::Instruction);
+
+    // Emitted by clang when calling functions with a 16-bit value.
+    test_line("\tpushl\t$4660                   # imm = 0x1234", asm_line::line_type::Instruction);
+    test_line("\tpushl\t$4660\t# imm = 0x1234", asm_line::line_type::Instruction);
 }
 
 TEST(test_parse_x86_asm_line, test_basic_binary_instruction_line)
