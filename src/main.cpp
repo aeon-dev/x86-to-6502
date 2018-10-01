@@ -1,31 +1,15 @@
+#include "asm_line.h"
+#include "operand.h"
+#include "mos6502.h"
+#include "i386.h"
+
 #include <iostream>
 #include <vector>
 #include <set>
 #include <string>
 #include <regex>
-#include <cassert>
 #include <map>
 #include <cctype>
-
-struct ASMLine
-{
-    enum class Type
-    {
-        Label,
-        Instruction,
-        Directive,
-        MissingOpcode
-    };
-
-    ASMLine(Type t, std::string te)
-        : type(t)
-        , text(std::move(te))
-    {
-    }
-
-    Type type;
-    std::string text;
-};
 
 int parse_8bit_literal(const std::string &s)
 {
@@ -38,46 +22,9 @@ std::string fixup_8bit_literal(const std::string &s)
     {
         return "#" + std::to_string(static_cast<uint8_t>(parse_8bit_literal(s)));
     }
-    else
-    {
-        return s;
-    }
+
+    return s;
 }
-
-struct Operand
-{
-    enum class Type
-    {
-        empty,
-        literal,
-        reg /*ister*/
-    };
-
-    Type type = Type::empty;
-    int reg_num = 0;
-    std::string value;
-
-    Operand() = default;
-
-    bool operator==(const Operand &other) const
-    {
-        return type == other.type && reg_num == other.reg_num && value == other.value;
-    }
-
-    Operand(const Type t, std::string v)
-        : type(t)
-        , value(std::move(v))
-    {
-        assert(type == Type::literal);
-    }
-
-    Operand(const Type t, const int num)
-        : type(t)
-        , reg_num(num)
-    {
-        assert(type == Type::reg);
-    }
-};
 
 Operand get_register(const int reg_num, const int offset = 0)
 {
@@ -120,479 +67,12 @@ Operand get_register(const int reg_num, const int offset = 0)
             return get_register(0x08 + offset);
         case 0x15:
             return get_register(0x0A + offset);
-    };
+        default:
+            break;
+    }
+
     throw std::runtime_error("Unhandled register number: " + std::to_string(reg_num));
 }
-
-struct mos6502 : ASMLine
-{
-    enum class OpCode
-    {
-        unknown,
-        lda,
-        ldy,
-        tay,
-        tya,
-        cpy,
-        eor,
-        sta,
-        sty,
-        pha,
-        pla,
-        php,
-        plp,
-        lsr,
-        ror,
-        AND,
-        inc,
-        dec,
-        ORA,
-        cmp,
-        bne,
-        beq,
-        bmi,
-        jmp,
-        adc,
-        sbc,
-        rts,
-        clc,
-        sec,
-        bit,
-        jsr
-    };
-
-    static bool get_is_branch(const OpCode o)
-    {
-        switch (o)
-        {
-            case OpCode::beq:
-            case OpCode::bne:
-            case OpCode::bmi:
-                return true;
-            case OpCode::lda:
-            case OpCode::ldy:
-            case OpCode::tay:
-            case OpCode::tya:
-            case OpCode::cpy:
-            case OpCode::eor:
-            case OpCode::sta:
-            case OpCode::sty:
-            case OpCode::pha:
-            case OpCode::pla:
-            case OpCode::php:
-            case OpCode::plp:
-            case OpCode::lsr:
-            case OpCode::ror:
-            case OpCode::AND:
-            case OpCode::inc:
-            case OpCode::dec:
-            case OpCode::ORA:
-            case OpCode::cmp:
-            case OpCode::jmp:
-            case OpCode::adc:
-            case OpCode::sbc:
-            case OpCode::rts:
-            case OpCode::clc:
-            case OpCode::sec:
-            case OpCode::bit:
-            case OpCode::jsr:
-            case OpCode::unknown:
-                break;
-        }
-        return false;
-    }
-
-    static bool get_is_comparison(const OpCode o)
-    {
-        switch (o)
-        {
-            case OpCode::cmp:
-            case OpCode::cpy:
-            case OpCode::bit:
-                return true;
-            case OpCode::lda:
-            case OpCode::ldy:
-            case OpCode::tay:
-            case OpCode::tya:
-            case OpCode::eor:
-            case OpCode::sta:
-            case OpCode::sty:
-            case OpCode::pha:
-            case OpCode::pla:
-            case OpCode::php:
-            case OpCode::plp:
-            case OpCode::lsr:
-            case OpCode::ror:
-            case OpCode::AND:
-            case OpCode::inc:
-            case OpCode::dec:
-            case OpCode::ORA:
-            case OpCode::jmp:
-            case OpCode::bne:
-            case OpCode::bmi:
-            case OpCode::beq:
-            case OpCode::adc:
-            case OpCode::sbc:
-            case OpCode::rts:
-            case OpCode::clc:
-            case OpCode::sec:
-            case OpCode::unknown:
-                break;
-        }
-        return false;
-    }
-
-    explicit mos6502(const OpCode o)
-        : ASMLine(Type::Instruction, to_string(o))
-        , opcode(o)
-        , is_branch(get_is_branch(o))
-        , is_comparison(get_is_comparison(o))
-    {
-    }
-
-    mos6502(const Type t, std::string s)
-        : ASMLine(t, std::move(s))
-    {
-    }
-
-    mos6502(const OpCode o, Operand t_o)
-        : ASMLine(Type::Instruction, to_string(o))
-        , opcode(o)
-        , op(std::move(t_o))
-        , is_branch(get_is_branch(o))
-        , is_comparison(get_is_comparison(o))
-    {
-    }
-
-    static std::string to_string(const OpCode o)
-    {
-        switch (o)
-        {
-            case OpCode::lda:
-                return "lda";
-            case OpCode::ldy:
-                return "ldy";
-            case OpCode::tay:
-                return "tay";
-            case OpCode::tya:
-                return "tya";
-            case OpCode::cpy:
-                return "cpy";
-            case OpCode::eor:
-                return "eor";
-            case OpCode::sta:
-                return "sta";
-            case OpCode::sty:
-                return "sty";
-            case OpCode::pha:
-                return "pha";
-            case OpCode::pla:
-                return "pla";
-            case OpCode::php:
-                return "php";
-            case OpCode::plp:
-                return "plp";
-            case OpCode::lsr:
-                return "lsr";
-            case OpCode::ror:
-                return "ror";
-            case OpCode::AND:
-                return "and";
-            case OpCode::inc:
-                return "inc";
-            case OpCode::dec:
-                return "dec";
-            case OpCode::ORA:
-                return "ora";
-            case OpCode::cmp:
-                return "cmp";
-            case OpCode::bne:
-                return "bne";
-            case OpCode::bmi:
-                return "bmi";
-            case OpCode::beq:
-                return "beq";
-            case OpCode::jmp:
-                return "jmp";
-            case OpCode::adc:
-                return "adc";
-            case OpCode::sbc:
-                return "sbc";
-            case OpCode::rts:
-                return "rts";
-            case OpCode::clc:
-                return "clc";
-            case OpCode::sec:
-                return "sec";
-            case OpCode::bit:
-                return "bit";
-            case OpCode::jsr:
-                return "jsr";
-            case OpCode::unknown:
-                return "";
-        };
-
-        return "";
-    }
-
-    std::string to_string() const
-    {
-        switch (type)
-        {
-            case ASMLine::Type::Label:
-                return text; // + ':';
-            case ASMLine::Type::Directive:
-            case ASMLine::Type::Instruction:
-            {
-                const std::string line = "    " + text + ' ' + op.value;
-                return line + std::string(static_cast<size_t>(std::max(15 - static_cast<int>(line.size()), 1)), ' ') +
-                       "; " + comment;
-            }
-            case ASMLine::Type::MissingOpcode:
-            {
-                return ";   " + text + " !!!MISSING!!! !!!MISSING!!!";
-            }
-        };
-        throw std::runtime_error("Unable to render: " + text);
-    }
-
-    OpCode opcode = OpCode::unknown;
-    Operand op;
-    std::string comment;
-    bool is_branch = false;
-    bool is_comparison = false;
-};
-
-struct i386 : ASMLine
-{
-    enum class OpCode
-    {
-        unknown,
-        movzbl,
-        movzwl,
-        shrb,
-        shrl,
-        xorl,
-        andl,
-        andb,
-        addb,
-        ret,
-        movb,
-        cmpb,
-        movl,
-        jmp,
-        jne,
-        je,
-        js,
-        testb,
-        incl,
-        incb,
-        decl,
-        decb,
-        sarl,
-        addl,
-        subl,
-        subb,
-        sall,
-        orl,
-        orb,
-        rep,
-        pushl,
-        sbbb,
-        negb,
-        notb,
-        retl,
-        calll
-    };
-
-    static OpCode parse_opcode(Type t, const std::string &o)
-    {
-        switch (t)
-        {
-            case Type::Label:
-                return OpCode::unknown;
-            case Type::Directive:
-                return OpCode::unknown;
-            case Type::Instruction:
-            {
-                if (o == "movzwl")
-                    return OpCode::movzwl;
-                if (o == "movzbl")
-                    return OpCode::movzbl;
-                if (o == "shrb")
-                    return OpCode::shrb;
-                if (o == "shrl")
-                    return OpCode::shrl;
-                if (o == "xorl")
-                    return OpCode::xorl;
-                if (o == "andl")
-                    return OpCode::andl;
-                if (o == "ret")
-                    return OpCode::ret;
-                if (o == "movb")
-                    return OpCode::movb;
-                if (o == "cmpb")
-                    return OpCode::cmpb;
-                if (o == "movl")
-                    return OpCode::movl;
-                if (o == "jmp")
-                    return OpCode::jmp;
-                if (o == "testb")
-                    return OpCode::testb;
-                if (o == "incl")
-                    return OpCode::incl;
-                if (o == "sarl")
-                    return OpCode::sarl;
-                if (o == "decl")
-                    return OpCode::decl;
-                if (o == "jne")
-                    return OpCode::jne;
-                if (o == "je")
-                    return OpCode::je;
-                if (o == "js")
-                    return OpCode::js;
-                if (o == "subl")
-                    return OpCode::subl;
-                if (o == "subb")
-                    return OpCode::subb;
-                if (o == "addl")
-                    return OpCode::addl;
-                if (o == "addb")
-                    return OpCode::addb;
-                if (o == "sall")
-                    return OpCode::sall;
-                if (o == "orl")
-                    return OpCode::orl;
-                if (o == "andb")
-                    return OpCode::andb;
-                if (o == "orb")
-                    return OpCode::orb;
-                if (o == "decb")
-                    return OpCode::decb;
-                if (o == "incb")
-                    return OpCode::incb;
-                if (o == "rep")
-                    return OpCode::rep;
-                if (o == "notb")
-                    return OpCode::notb;
-                if (o == "negb")
-                    return OpCode::negb;
-                if (o == "sbbb")
-                    return OpCode::sbbb;
-                if (o == "pushl")
-                    return OpCode::pushl;
-                if (o == "retl")
-                    return OpCode::retl;
-                if (o == "calll")
-                    return OpCode::calll;
-
-                return OpCode::unknown;
-            }
-        }
-        throw std::runtime_error("Unknown opcode: " + o);
-    }
-
-    static Operand parse_operand(std::string o)
-    {
-        if (o.empty())
-        {
-            return Operand();
-        }
-
-        if (o[0] == '%')
-        {
-            if (o == "%al")
-            {
-                return Operand(Operand::Type::reg, 0x00);
-            }
-            else if (o == "%ah")
-            {
-                return Operand(Operand::Type::reg, 0x01);
-            }
-            else if (o == "%bl")
-            {
-                return Operand(Operand::Type::reg, 0x02);
-            }
-            else if (o == "%bh")
-            {
-                return Operand(Operand::Type::reg, 0x03);
-            }
-            else if (o == "%cl")
-            {
-                return Operand(Operand::Type::reg, 0x04);
-            }
-            else if (o == "%ch")
-            {
-                return Operand(Operand::Type::reg, 0x05);
-            }
-            else if (o == "%dl")
-            {
-                return Operand(Operand::Type::reg, 0x06);
-            }
-            else if (o == "%dh")
-            {
-                return Operand(Operand::Type::reg, 0x07);
-            }
-            else if (o == "%sil")
-            {
-                return Operand(Operand::Type::reg, 0x08);
-            }
-            else if (o == "%dil")
-            {
-                return Operand(Operand::Type::reg, 0x0A);
-            }
-            else if (o == "%ax" || o == "%eax")
-            {
-                return Operand(Operand::Type::reg, 0x10);
-            }
-            else if (o == "%bx" || o == "%ebx")
-            {
-                return Operand(Operand::Type::reg, 0x11);
-            }
-            else if (o == "%cx" || o == "%ecx")
-            {
-                return Operand(Operand::Type::reg, 0x12);
-            }
-            else if (o == "%dx" || o == "%edx")
-            {
-                return Operand(Operand::Type::reg, 0x13);
-            }
-            else if (o == "%si" || o == "%esi")
-            {
-                return Operand(Operand::Type::reg, 0x14);
-            }
-            else if (o == "%di" || o == "%edi")
-            {
-                return Operand(Operand::Type::reg, 0x15);
-            }
-            else
-            {
-                throw std::runtime_error("Unknown register operand: '" + o + "'");
-            }
-        }
-        else
-        {
-            return Operand(Operand::Type::literal, std::move(o));
-        }
-    }
-
-    i386(const int t_line_num, std::string t_line_text, Type t, std::string t_opcode, std::string o1 = "",
-         std::string o2 = "")
-        : ASMLine(t, t_opcode)
-        , line_num(t_line_num)
-        , line_text(std::move(t_line_text))
-        , opcode(parse_opcode(t, t_opcode))
-        , operand1(parse_operand(o1))
-        , operand2(parse_operand(o2))
-    {
-    }
-
-    int line_num;
-    std::string line_text;
-    OpCode opcode;
-    Operand operand1;
-    Operand operand2;
-};
 
 void translate_instruction(std::vector<mos6502> &instructions, const std::string &line_text, const i386::OpCode op,
                            const Operand &o1, const Operand &o2)
@@ -974,7 +454,7 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
 
         default:
             throw std::runtime_error("Cannot translate unhandled instruction");
-    };
+    }
 }
 
 enum class LogLevel
@@ -1254,7 +734,7 @@ int main()
 
     std::set<std::string> labels;
 
-    for (const auto i : instructions)
+    for (const auto &i : instructions)
     {
         if (i.type == ASMLine::Type::Label)
         {
@@ -1264,7 +744,7 @@ int main()
 
     std::set<std::string> used_labels{"main"};
 
-    for (const auto i : instructions)
+    for (const auto &i : instructions)
     {
         if (i.type == ASMLine::Type::Instruction)
         {
@@ -1347,7 +827,7 @@ int main()
         // do it however many times it takes
     }
 
-    for (const auto i : new_instructions)
+    for (const auto &i : new_instructions)
     {
         std::cout << i.to_string() << '\n';
     }
