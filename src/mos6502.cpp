@@ -184,22 +184,22 @@ auto mos6502::to_string(const mos6502_opcode o) -> std::string
 
 auto mos6502::to_string() const -> std::string
 {
-    switch (type)
+    switch (type())
     {
         case asm_line::line_type::Label:
-            return text; // + ':';
+            return text(); // + ':';
         case asm_line::line_type::Directive:
         case asm_line::line_type::Instruction:
         {
-            const std::string line = "    " + text + ' ' + op.value();
+            const std::string line = "    " + text() + ' ' + op.value();
             return line + std::string(static_cast<size_t>(std::max(15 - static_cast<int>(line.size()), 1)), ' ') +
                    "; " + comment;
         }
         case asm_line::line_type::MissingOpcode:
         {
-            return ";   " + text + " !!!MISSING!!! !!!MISSING!!!";
+            return ";   " + text() + " !!!MISSING!!! !!!MISSING!!!";
         }
     }
 
-    throw std::runtime_error("Unable to render: " + text);
+    throw std::runtime_error("Unable to render: " + text());
 }

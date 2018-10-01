@@ -501,15 +501,20 @@ void to_mos6502(const i386 &i, std::vector<mos6502> &instructions)
 {
     try
     {
-        switch (i.type)
+        switch (i.type())
         {
             case asm_line::line_type::Label:
-                instructions.emplace_back(i.type, i.text);
+            {
+                instructions.emplace_back(i.type(), i.text());
                 return;
+            }
             case asm_line::line_type::Directive:
-                instructions.emplace_back(i.type, i.text);
+            {
+                instructions.emplace_back(i.type(), i.text());
                 return;
+            }
             case asm_line::line_type::Instruction:
+            {
                 //        instructions.emplace_back(ASMLine::Type::Directive, "; " + i.line_text);
 
                 const auto head = instructions.size();
@@ -524,7 +529,13 @@ void to_mos6502(const i386 &i, std::vector<mos6502> &instructions)
 
                 for_each(std::next(instructions.begin(), head), instructions.end(),
                          [text](auto &ins) { ins.comment = text; });
-                return;
+                break;
+            }
+            case asm_line::line_type::MissingOpcode:
+            {
+                std::cerr << "Missing opcode: " << i.text() << '\n';
+                break;
+            }
         }
     }
     catch (const std::exception &e)
@@ -544,7 +555,7 @@ bool optimize(std::vector<mos6502> &instructions)
         do
         {
             ++i;
-        } while (i < instructions.size() && instructions[i].type == asm_line::line_type::Directive);
+        } while (i < instructions.size() && instructions[i].is_directive());
         return i;
     };
 
@@ -585,8 +596,8 @@ bool optimize(std::vector<mos6502> &instructions)
             const auto operand = instructions[op].op;
             auto op2 = op + 1;
             // look for multiple stores of the same value
-            while (op2 < instructions.size() && (instructions[op2].opcode == mos6502_opcode::sta ||
-                                                 instructions[op2].type == asm_line::line_type::Directive))
+            while (op2 < instructions.size() &&
+                   (instructions[op2].opcode == mos6502_opcode::sta || instructions[op2].is_directive()))
             {
                 ++op2;
             }
@@ -607,9 +618,9 @@ bool fix_long_branches(std::vector<mos6502> &instructions, int &branch_patch_cou
     std::map<std::string, size_t> labels;
     for (size_t op = 0; op < instructions.size(); ++op)
     {
-        if (instructions[op].type == asm_line::line_type::Label)
+        if (instructions[op].is_label())
         {
-            labels[instructions[op].text] = op;
+            labels[instructions[op].text()] = op;
         }
     }
 
@@ -748,9 +759,9 @@ int main()
 
     for (const auto &i : instructions)
     {
-        if (i.type == asm_line::line_type::Label)
+        if (i.is_label())
         {
-            labels.insert(i.text);
+            labels.insert(i.text());
         }
     }
 
@@ -758,7 +769,7 @@ int main()
 
     for (const auto &i : instructions)
     {
-        if (i.type == asm_line::line_type::Instruction)
+        if (i.is_instruction())
         {
             if (labels.count(i.operand1.value()) != 0)
             {
@@ -771,9 +782,9 @@ int main()
     // remove all labels and directives that we don't need
     instructions.erase(std::remove_if(std::begin(instructions), std::end(instructions),
                                       [&used_labels](const auto &i) {
-                                          if (i.type == asm_line::line_type::Label)
+                                          if (i.is_label())
                                           {
-                                              if (used_labels.count(i.text) == 0)
+                                              if (used_labels.count(i.text()) == 0)
                                               {
                                                   // remove all unused labels that aren't 'main'
                                                   return true;
@@ -798,9 +809,9 @@ int main()
 
     for (auto &i : instructions)
     {
-        if (i.type == asm_line::line_type::Label)
+        if (i.is_label())
         {
-            i.text = new_labels.at(i.text);
+            i.set_text(new_labels.at(i.text()));
         }
 
         const auto itr1 = new_labels.find(i.operand1.value());
