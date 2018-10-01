@@ -1,5 +1,6 @@
 #include "mos6502.h"
 #include <algorithm>
+#include <cassert>
 
 mos6502::mos6502(const OpCode o)
     : ASMLine(Type::Instruction, to_string(o))
@@ -59,9 +60,10 @@ auto mos6502::get_is_branch(const OpCode o) -> bool
         case OpCode::bit:
         case OpCode::jsr:
         case OpCode::unknown:
-            break;
+            return false;
     }
 
+    assert(false && "Missing opcode in mos6502::get_is_branch");
     return false;
 }
 
@@ -99,11 +101,12 @@ auto mos6502::get_is_comparison(const OpCode o) -> bool
         case OpCode::rts:
         case OpCode::clc:
         case OpCode::sec:
+        case OpCode::jsr:
         case OpCode::unknown:
-        default:
-            break;
+            return false;
     }
 
+    assert(false && "Missing opcode in mos6502::get_is_comparison");
     return false;
 }
 
@@ -175,6 +178,7 @@ auto mos6502::to_string(const OpCode o) -> std::string
             return "";
     }
 
+    assert(false && "Missing opcode in mos6502::to_string");
     return "";
 }
 
