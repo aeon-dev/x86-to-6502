@@ -36,6 +36,11 @@ auto get_16bit_lsb(const int value) noexcept
     return static_cast<std::uint8_t>(value & 0xff);
 }
 
+std::string create_8bit_literal(const int value)
+{
+    return "#" + std::to_string(static_cast<uint8_t>(value));
+}
+
 std::string fixup_8bit_literal(const std::string &s)
 {
     if (s[0] == '$')
@@ -497,11 +502,13 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
                 }
                 else
                 {
-                    instructions.emplace_back(mos6502_opcode::lda,
-                                              instruction_operand(operand_type::literal, get_16bit_msb(value)));
+                    instructions.emplace_back(
+                        mos6502_opcode::lda,
+                        instruction_operand(operand_type::literal, create_8bit_literal(get_16bit_msb(value))));
                     instructions.emplace_back(mos6502_opcode::pha);
-                    instructions.emplace_back(mos6502_opcode::lda,
-                                              instruction_operand(operand_type::literal, get_16bit_lsb(value)));
+                    instructions.emplace_back(
+                        mos6502_opcode::lda,
+                        instruction_operand(operand_type::literal, create_8bit_literal(get_16bit_lsb(value))));
                     instructions.emplace_back(mos6502_opcode::pha);
                 }
             }
