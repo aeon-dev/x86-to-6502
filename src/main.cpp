@@ -11,16 +11,36 @@
 #include <map>
 #include <cctype>
 
-int parse_8bit_literal(const std::string &s)
+int parse_literal(const std::string &s)
 {
     return std::stoi(std::string(std::next(std::begin(s)), std::end(s)));
+}
+
+auto is_8bit_literal(const int value) noexcept
+{
+    return value <= 0xff;
+}
+
+auto is_16bit_literal(const int value) noexcept
+{
+    return value > 0xff;
+}
+
+auto get_16bit_msb(const int value) noexcept
+{
+    return static_cast<std::uint8_t>((value >> 8) & 0xff);
+}
+
+auto get_16bit_lsb(const int value) noexcept
+{
+    return static_cast<std::uint8_t>(value & 0xff);
 }
 
 std::string fixup_8bit_literal(const std::string &s)
 {
     if (s[0] == '$')
     {
-        return "#" + std::to_string(static_cast<uint8_t>(parse_8bit_literal(s)));
+        return "#" + std::to_string(static_cast<uint8_t>(parse_literal(s)));
     }
 
     return s;
@@ -204,7 +224,7 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
 
                 if (o1.is_literal())
                 {
-                    const auto count = parse_8bit_literal(o1.value());
+                    const auto count = parse_literal(o1.value());
                     for (int i = 0; i < count; ++i)
                     {
                         do_shift(o2.register_number());
@@ -230,7 +250,7 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
 
                 if (o1.is_literal())
                 {
-                    const auto count = parse_8bit_literal(o1.value());
+                    const auto count = parse_literal(o1.value());
                     for (int i = 0; i < count; ++i)
                     {
                         do_shift(o2.register_number());
@@ -468,8 +488,22 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
             }
             else if (o1.is_literal())
             {
-                instructions.emplace_back(mos6502_opcode::lda, o1);
-                instructions.emplace_back(mos6502_opcode::pha);
+                const auto value = parse_literal(o1.value());
+
+                if (is_8bit_literal(value))
+                {
+                    instructions.emplace_back(mos6502_opcode::lda, o1);
+                    instructions.emplace_back(mos6502_opcode::pha);
+                }
+                else
+                {
+                    instructions.emplace_back(mos6502_opcode::lda,
+                                              instruction_operand(operand_type::literal, get_16bit_msb(value)));
+                    instructions.emplace_back(mos6502_opcode::pha);
+                    instructions.emplace_back(mos6502_opcode::lda,
+                                              instruction_operand(operand_type::literal, get_16bit_lsb(value)));
+                    instructions.emplace_back(mos6502_opcode::pha);
+                }
             }
             else
             {
