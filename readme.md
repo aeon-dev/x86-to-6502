@@ -1,6 +1,6 @@
 # About
 
-Attempts to translate x86 assembly into mos6502 assembly.
+Attempts to translate x86 assembly into mos6502 assembly. Forked from Jason Turner's implementation at https://github.com/lefticus/x86-to-6502
 
 # Why?
 
