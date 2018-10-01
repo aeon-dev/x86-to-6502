@@ -67,6 +67,8 @@ instruction_operand get_register(const int reg_num, const int offset = 0)
             return get_register(0x08 + offset);
         case 0x15:
             return get_register(0x0A + offset);
+        case 0x16:
+            return instruction_operand(operand_type::literal, "$0b"); // Current BASIC token during tokenization.
         default:
             break;
     }
@@ -99,9 +101,11 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
             }
             else if (o1.is_literal() && o2.is_register())
             {
-                instructions.emplace_back(mos6502_opcode::lda, instruction_operand(operand_type::literal, "#<" + o1.value()));
+                instructions.emplace_back(mos6502_opcode::lda,
+                                          instruction_operand(operand_type::literal, "#<" + o1.value()));
                 instructions.emplace_back(mos6502_opcode::sta, get_register(o2.register_number()));
-                instructions.emplace_back(mos6502_opcode::lda, instruction_operand(operand_type::literal, "#>" + o1.value()));
+                instructions.emplace_back(mos6502_opcode::lda,
+                                          instruction_operand(operand_type::literal, "#>" + o1.value()));
                 instructions.emplace_back(mos6502_opcode::sta, get_register(o2.register_number(), 1));
             }
             else
@@ -331,6 +335,42 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
                 throw std::runtime_error("Cannot translate addb instruction");
             }
             break;
+        // TODO: Fixup 16-bit add. addl is generated when doing cdecl calling conventions to change the stack pointer.
+        case i386_opcode::addl:
+            if (o1.is_literal() && o2.is_register())
+            {
+                // TODO: Is it the stack pointer (SPI)? Then skip emitting this code.
+                // This should probably be an optimization step instead as it should only
+                // be skipped if it's used in context of calling a cdecl function.
+                if (o2.register_number() != 0x16)
+                {
+                    instructions.emplace_back(mos6502_opcode::lda, get_register(o2.register_number()));
+                    instructions.emplace_back(mos6502_opcode::clc);
+                    instructions.emplace_back(mos6502_opcode::adc, instruction_operand(operand_type::literal,
+                                                                                       fixup_8bit_literal(o1.value())));
+                    instructions.emplace_back(mos6502_opcode::sta, get_register(o2.register_number()));
+                }
+            }
+            else if (o1.is_literal() && o2.is_literal())
+            {
+                instructions.emplace_back(mos6502_opcode::lda,
+                                          instruction_operand(operand_type::literal, fixup_8bit_literal(o1.value())));
+                instructions.emplace_back(mos6502_opcode::clc);
+                instructions.emplace_back(mos6502_opcode::adc, o2);
+                instructions.emplace_back(mos6502_opcode::sta, o2);
+            }
+            else if (o1.is_register() && o2.is_literal())
+            {
+                instructions.emplace_back(mos6502_opcode::lda, get_register(o1.register_number()));
+                instructions.emplace_back(mos6502_opcode::clc);
+                instructions.emplace_back(mos6502_opcode::adc, o2);
+                instructions.emplace_back(mos6502_opcode::sta, o2);
+            }
+            else
+            {
+                throw std::runtime_error("Cannot translate addb instruction");
+            }
+            break;
         case i386_opcode::cmpb:
             if (o1.is_literal() && o2.is_literal())
             {
@@ -441,11 +481,13 @@ void translate_instruction(std::vector<mos6502> &instructions, const std::string
             // o2 <- -cf
             if (o1.is_register() && o2.is_register() && o1.register_number() == o2.register_number())
             {
-                instructions.emplace_back(mos6502_opcode::lda, instruction_operand(operand_type::literal, "#$00")); // reset a
-                instructions.emplace_back(mos6502_opcode::sbc,
-                                          instruction_operand(operand_type::literal, "#$00")); // subtract out the carry flag
+                instructions.emplace_back(mos6502_opcode::lda,
+                                          instruction_operand(operand_type::literal, "#$00")); // reset a
+                instructions.emplace_back(
+                    mos6502_opcode::sbc,
+                    instruction_operand(operand_type::literal, "#$00")); // subtract out the carry flag
                 instructions.emplace_back(mos6502_opcode::eor,
-                                          instruction_operand(operand_type::literal, "#$ff"));                  // invert the bits
+                                          instruction_operand(operand_type::literal, "#$ff"));      // invert the bits
                 instructions.emplace_back(mos6502_opcode::sta, get_register(o2.register_number())); // place the value
             }
             else

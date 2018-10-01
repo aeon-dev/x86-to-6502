@@ -165,6 +165,10 @@ static auto parse_operand(std::string o) -> instruction_operand
     {
         return instruction_operand(operand_type::reg, 0x15);
     }
+    else if (o == "%sp" || o == "%esp")
+    {
+        return instruction_operand(operand_type::reg, 0x16);
+    }
 
     throw std::runtime_error("Unknown register operand: '" + o + "'");
 }
