@@ -1,6 +1,7 @@
 #include <ca/target.h>
 #include <map>
 #include <iostream>
+#include <functional>
 
 namespace ca
 {
