@@ -1,4 +1,5 @@
-#include <x86-to-6502/mos6502.h>
+#include <mos6502/mos6502_instruction.h>
+#include "opcodes.h"
 #include <algorithm>
 #include <cassert>
 #include <stdexcept>
@@ -95,24 +96,25 @@ static auto is_comparison(const mos6502_opcode o) -> bool
 } // namespace internal
 
 mos6502::mos6502(const mos6502_opcode o)
-    : asm_line(line_type::Instruction, to_string(o))
-    , opcode_(o)
-    , is_branch_(internal::is_branch(o))
-    , is_comparison_(internal::is_comparison(o))
+    : asm_line{line_type::Instruction, to_string(o)}
+    , opcode_{o}
+    , is_branch_{internal::is_branch(o)}
+    , is_comparison_{internal::is_comparison(o)}
 {
 }
 
 mos6502::mos6502(const line_type t, std::string s)
-    : asm_line(t, std::move(s))
+    : asm_line{t, std::move(s)}
+    , opcode_{mos6502_opcode::unknown}
 {
 }
 
-mos6502::mos6502(const mos6502_opcode o, instruction_operand t_o)
-    : asm_line(line_type::Instruction, to_string(o))
-    , opcode_(o)
-    , operand_(std::move(t_o))
-    , is_branch_(internal::is_branch(o))
-    , is_comparison_(internal::is_comparison(o))
+mos6502::mos6502(const mos6502_opcode o, ca::instruction_operand t_o)
+    : asm_line{line_type::Instruction, to_string(o)}
+    , opcode_{o}
+    , operand_{std::move(t_o)}
+    , is_branch_{internal::is_branch(o)}
+    , is_comparison_{internal::is_comparison(o)}
 {
 }
 

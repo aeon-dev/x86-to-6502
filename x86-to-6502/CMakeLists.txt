@@ -2,7 +2,7 @@ add_executable(x86-to-6502
     src/main.cpp
 )
 
-target_link_libraries(x86-to-6502 libx86-to-6502)
+target_link_libraries(x86-to-6502 libca target_mos6502)
 
 target_include_directories(x86-to-6502
     PRIVATE src

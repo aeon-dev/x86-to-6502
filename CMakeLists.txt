@@ -25,5 +25,6 @@ if(CMAKE_COMPILER_IS_GNUCC)
 endif()
 
 add_subdirectory(dep/googletest)
-add_subdirectory(libx86-to-6502)
+add_subdirectory(libca)
+add_subdirectory(targets)
 add_subdirectory(x86-to-6502)

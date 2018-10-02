@@ -6,5 +6,6 @@ function format {
     find "$DIRECTORY" \( -name '*.h' -or -name '*.cpp' \) -print0 | xargs -0 "$CLANG_FORMAT" -i
 }
 
-format $(pwd)/libx86-to-6502
+format $(pwd)/libca
+format $(pwd)/targets
 format $(pwd)/x86-to-6502

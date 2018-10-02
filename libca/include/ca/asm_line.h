@@ -3,6 +3,9 @@
 #include <string>
 #include <utility>
 
+namespace ca
+{
+
 struct asm_line
 {
     enum class line_type
@@ -82,3 +85,5 @@ private:
     line_type type_;
     std::string text_;
 };
+
+} // namespace ca

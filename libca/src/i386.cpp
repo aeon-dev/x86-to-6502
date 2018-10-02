@@ -1,5 +1,13 @@
-#include <x86-to-6502/i386.h>
+#include <ca/i386.h>
+#include "logger.h"
 #include <regex>
+#include <iostream>
+#include <set>
+#include <map>
+#include <cctype>
+
+namespace ca
+{
 
 namespace internal
 {
@@ -207,6 +215,108 @@ i386::i386(const int line_number, std::string line_text, line_type type, std::st
 {
 }
 
+// TODO: This should be refactored into smaller methods.
+auto i386::parse() -> std::vector<i386>
+{
+    int lineno = 0;
+
+    std::vector<ca::i386> instructions;
+
+    while (std::cin.good())
+    {
+        std::string line;
+        getline(std::cin, line);
+
+        try
+        {
+            auto instruction = ca::i386::parse(line, lineno);
+
+            if (!instruction.is_empty() && !instruction.is_comment())
+                instructions.emplace_back(std::move(instruction));
+        }
+        catch (const std::exception &e)
+        {
+            log(LogLevel::Error, lineno, line, e.what());
+        }
+
+        ++lineno;
+    }
+
+    std::set<std::string> labels;
+
+    for (const auto &i : instructions)
+    {
+        if (i.is_label())
+        {
+            labels.insert(i.text());
+        }
+    }
+
+    std::set<std::string> used_labels{"main"};
+
+    for (const auto &i : instructions)
+    {
+        if (i.is_instruction())
+        {
+            if (labels.count(i.operand1().value()) != 0)
+            {
+                used_labels.insert(i.operand1().value());
+                used_labels.insert(i.operand2().value());
+            }
+        }
+    }
+
+    // remove all labels and directives that we don't need
+    instructions.erase(std::remove_if(std::begin(instructions), std::end(instructions),
+                                      [&used_labels](const auto &i) {
+                                          if (i.is_label())
+                                          {
+                                              if (used_labels.count(i.text()) == 0)
+                                              {
+                                                  // remove all unused labels that aren't 'main'
+                                                  return true;
+                                              }
+                                          }
+                                          return false;
+                                      }),
+                       std::end(instructions));
+
+    const auto new_labels = [&used_labels]() {
+        std::map<std::string, std::string> result;
+        for (const auto &l : used_labels)
+        {
+            auto newl = l;
+            std::transform(newl.begin(), newl.end(), newl.begin(), [](const auto c) { return std::tolower(c); });
+            newl.erase(std::remove_if(newl.begin(), newl.end(), [](const auto c) { return !std::isalnum(c); }),
+                       std::end(newl));
+            result.emplace(std::make_pair(l, newl));
+        }
+        return result;
+    }();
+
+    for (auto &i : instructions)
+    {
+        if (i.is_label())
+        {
+            i.set_text(new_labels.at(i.text()));
+        }
+
+        const auto itr1 = new_labels.find(i.operand1().value());
+        if (itr1 != new_labels.end())
+        {
+            i.operand1().set_value(itr1->second);
+        }
+
+        const auto itr2 = new_labels.find(i.operand2().value());
+        if (itr2 != new_labels.end())
+        {
+            i.operand2().set_value(itr2->second);
+        }
+    }
+
+    return instructions;
+}
+
 auto i386::parse(const std::string &line, const int line_number) -> i386
 {
     std::regex Comment(R"(\s*\#.*)");
@@ -250,3 +360,5 @@ auto i386::parse(const std::string &line, const int line_number) -> i386
         throw std::runtime_error("Unparsed Input, Line: " + std::to_string(line_number));
     }
 }
+
+} // namespace ca

@@ -1,48 +1,15 @@
 #pragma once
 
-#include "asm_line.h"
-#include "instruction_operand.h"
+#include <ca/asm_line.h>
+#include <ca/instruction_operand.h>
 
-enum class mos6502_opcode
-{
-    unknown,
-    lda,
-    ldy,
-    tay,
-    tya,
-    cpy,
-    eor,
-    sta,
-    sty,
-    pha,
-    pla,
-    php,
-    plp,
-    lsr,
-    ror,
-    AND,
-    inc,
-    dec,
-    ORA,
-    cmp,
-    bne,
-    beq,
-    bmi,
-    jmp,
-    adc,
-    sbc,
-    rts,
-    clc,
-    sec,
-    bit,
-    jsr
-};
+enum class mos6502_opcode : int;
 
-struct mos6502 : asm_line
+struct mos6502 : ca::asm_line
 {
     explicit mos6502(const mos6502_opcode o);
     mos6502(const line_type t, std::string s);
-    mos6502(const mos6502_opcode o, instruction_operand t_o);
+    mos6502(const mos6502_opcode o, ca::instruction_operand t_o);
 
     static auto to_string(const mos6502_opcode o) -> std::string;
 
@@ -79,8 +46,8 @@ struct mos6502 : asm_line
     }
 
 private:
-    mos6502_opcode opcode_ = mos6502_opcode::unknown;
-    instruction_operand operand_;
+    mos6502_opcode opcode_;
+    ca::instruction_operand operand_;
     std::string comment_;
     bool is_branch_ = false;
     bool is_comparison_ = false;

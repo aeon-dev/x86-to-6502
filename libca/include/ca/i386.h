@@ -2,6 +2,10 @@
 
 #include "asm_line.h"
 #include "instruction_operand.h"
+#include <vector>
+
+namespace ca
+{
 
 enum class i386_opcode
 {
@@ -55,6 +59,7 @@ public:
     i386(const int line_number, std::string line_text, line_type type, std::string opcode, std::string operand1 = "",
          std::string operand2 = "");
 
+    static auto parse() -> std::vector<i386>;
     static auto parse(const std::string &line, const int line_number) -> i386;
 
     auto line_number() const noexcept
@@ -109,3 +114,5 @@ private:
     instruction_operand operand1_;
     instruction_operand operand2_;
 };
+
+} // namespace ca

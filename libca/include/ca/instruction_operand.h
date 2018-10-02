@@ -4,6 +4,9 @@
 #include <utility>
 #include <cassert>
 
+namespace ca
+{
+
 enum class operand_type
 {
     empty,
@@ -76,3 +79,5 @@ private:
     int reg_num_ = 0;
     std::string value_;
 };
+
+} // namespace ca
