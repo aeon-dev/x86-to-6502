@@ -5,6 +5,7 @@
 #include <mos6502/mos6502_instruction.h>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 class mos6502_target final : public ca::target
 {
