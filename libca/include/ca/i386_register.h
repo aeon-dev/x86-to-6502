@@ -23,11 +23,15 @@ enum class i386_register
     dx,
     edx,
     sil,
-    dil,
     si,
     esi,
+    dil,
     di,
     edi,
+    bpl,
+    bp,
+    ebp,
+    spl,
     sp,
     esp
 };
