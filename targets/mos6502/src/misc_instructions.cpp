@@ -6,9 +6,9 @@ void mos6502_target::translate_pushl(const ca::instruction_operand &o1, const ca
 {
     if (o1.is_register())
     {
-        emit(mos6502_opcode::lda, get_register(o1.register_number()));
+        emit(mos6502_opcode::lda, get_register(o1.reg()));
         emit(mos6502_opcode::pha);
-        emit(mos6502_opcode::lda, get_register(o1.register_number(), 1));
+        emit(mos6502_opcode::lda, get_register(o1.reg(), 1));
         emit(mos6502_opcode::pha);
     }
     else if (o1.is_literal())

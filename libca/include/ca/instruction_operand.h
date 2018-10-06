@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ca/i386_register.h>
 #include <string>
 #include <utility>
 #include <cassert>
@@ -26,16 +27,15 @@ public:
         assert(type_ == operand_type::literal);
     }
 
-    instruction_operand(const operand_type t, const int num)
-        : type_{t}
-        , reg_num_{num}
+    instruction_operand(const i386_register reg)
+        : type_{operand_type::reg}
+        , register_{reg}
     {
-        assert(type_ == operand_type::reg);
     }
 
     bool operator==(const instruction_operand &other) const
     {
-        return type_ == other.type_ && reg_num_ == other.reg_num_ && value_ == other.value_;
+        return type_ == other.type_ && register_ == other.register_ && value_ == other.value_;
     }
 
     auto is_empty() const noexcept
@@ -58,10 +58,10 @@ public:
         return type_;
     }
 
-    auto register_number() const noexcept
+    auto reg() const noexcept
     {
         assert(type_ == operand_type::reg);
-        return reg_num_;
+        return register_;
     }
 
     const auto &value() const noexcept
@@ -76,7 +76,7 @@ public:
 
 private:
     operand_type type_ = operand_type::empty;
-    int reg_num_ = 0;
+    i386_register register_ = i386_register::unknown;
     std::string value_;
 };
 

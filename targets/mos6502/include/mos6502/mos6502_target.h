@@ -60,58 +60,93 @@ private:
         return s;
     }
 
-    auto get_register(const int reg_num, const int offset = 0) -> ca::instruction_operand
+    auto get_register(const ca::i386_register reg, const int offset = 0) const -> ca::instruction_operand
     {
-        switch (reg_num)
+        switch (reg)
         {
             //  http://sta.c64.org/cbm64mem.html
-            case 0x00:
+            case ca::i386_register::al:
                 return ca::instruction_operand(ca::operand_type::literal, "$03"); // unused, fp->int routine pointer
-            case 0x01:
+            case ca::i386_register::ah:
                 return ca::instruction_operand(ca::operand_type::literal, "$04");
-            case 0x02:
+            case ca::i386_register::bl:
                 return ca::instruction_operand(ca::operand_type::literal, "$05"); // unused, int->fp routine pointer
-            case 0x03:
+            case ca::i386_register::bh:
                 return ca::instruction_operand(ca::operand_type::literal, "$06");
-            case 0x04:
+            case ca::i386_register::cl:
                 return ca::instruction_operand(ca::operand_type::literal, "$fb"); // unused
-            case 0x05:
+            case ca::i386_register::ch:
                 return ca::instruction_operand(ca::operand_type::literal, "$fc"); // unused
-            case 0x06:
+            case ca::i386_register::dl:
                 return ca::instruction_operand(ca::operand_type::literal, "$fd"); // unused
-            case 0x07:
+            case ca::i386_register::dh:
                 return ca::instruction_operand(ca::operand_type::literal, "$fe"); // unused
-            case 0x08:
+            case ca::i386_register::sil:
                 return ca::instruction_operand(ca::operand_type::literal, "$22"); // unused
-            case 0x09:
-                return ca::instruction_operand(ca::operand_type::literal, "$23"); // unused
-            case 0x0A:
+            case ca::i386_register::dil:
                 return ca::instruction_operand(ca::operand_type::literal, "$39"); // Current BASIC line number
-            case 0x0B:
-                return ca::instruction_operand(ca::operand_type::literal, "$3a"); // Current BASIC line number
-            case 0x0C:
-                return ca::instruction_operand(ca::operand_type::literal, "$3d"); // Pointer to next BASIC instruction
-            case 0x0D:
-                return ca::instruction_operand(ca::operand_type::literal, "$3e"); // Pointer to next BASIC instruction
-            case 0x10:
-                return get_register(0x00 + offset);
-            case 0x11:
-                return get_register(0x02 + offset);
-            case 0x12:
-                return get_register(0x04 + offset);
-            case 0x13:
-                return get_register(0x06 + offset);
-            case 0x14:
-                return get_register(0x08 + offset);
-            case 0x15:
-                return get_register(0x0A + offset);
-            case 0x16:
-                return get_register(0x0C + offset);
+            case ca::i386_register::ax:
+            case ca::i386_register::eax:
+                if (offset == 0)
+                    return get_register(ca::i386_register::al);
+                else if (offset == 1)
+                    return get_register(ca::i386_register::ah);
+                else
+                    throw std::runtime_error("Unexpected register offset.");
+            case ca::i386_register::bx:
+            case ca::i386_register::ebx:
+                if (offset == 0)
+                    return get_register(ca::i386_register::bl);
+                else if (offset == 1)
+                    return get_register(ca::i386_register::bh);
+                else
+                    throw std::runtime_error("Unexpected register offset.");
+            case ca::i386_register::cx:
+            case ca::i386_register::ecx:
+                if (offset == 0)
+                    return get_register(ca::i386_register::cl);
+                else if (offset == 1)
+                    return get_register(ca::i386_register::ch);
+                else
+                    throw std::runtime_error("Unexpected register offset.");
+            case ca::i386_register::dx:
+            case ca::i386_register::edx:
+                if (offset == 0)
+                    return get_register(ca::i386_register::dl);
+                else if (offset == 1)
+                    return get_register(ca::i386_register::dh);
+                else
+                    throw std::runtime_error("Unexpected register offset.");
+            case ca::i386_register::si:
+                if (offset == 0)
+                    return get_register(ca::i386_register::sil);
+                else if (offset == 1)
+                    return ca::instruction_operand(ca::operand_type::literal, "$23"); // unused
+                else
+                    throw std::runtime_error("Unexpected register offset.");
+            case ca::i386_register::di:
+                if (offset == 0)
+                    return get_register(ca::i386_register::dil);
+                else if (offset == 1)
+                    return ca::instruction_operand(ca::operand_type::literal, "$3a"); // Current BASIC line number
+                else
+                    throw std::runtime_error("Unexpected register offset.");
+            case ca::i386_register::sp:
+            case ca::i386_register::esp:
+                if (offset == 0)
+                    return ca::instruction_operand(ca::operand_type::literal,
+                                                   "$3d"); // Pointer to next BASIC instruction
+                else if (offset == 1)
+                    return ca::instruction_operand(ca::operand_type::literal,
+                                                   "$3e"); // Pointer to next BASIC instruction
+                else
+                    throw std::runtime_error("Unexpected register offset.");
             default:
                 break;
         }
 
-        throw std::runtime_error("Unhandled register number: " + std::to_string(reg_num));
+        // TODO: i386_register enum to string
+        throw std::runtime_error("Unhandled register: " + std::to_string(static_cast<int>(reg)));
     }
 
     template <typename... T>

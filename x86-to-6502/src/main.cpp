@@ -4,7 +4,7 @@
 int main(int argc, char *argv[])
 {
     mos6502_target target;
-    ca::cross_assembler assembler(target);
+    ca::cross_assembler assembler{target};
     assembler.assemble();
 
     return 0;

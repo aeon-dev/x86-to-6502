@@ -12,17 +12,17 @@ void mos6502_target::translate_movb(const ca::instruction_operand &o1, const ca:
     else if (o1.is_literal() && o2.is_register())
     {
         emit(mos6502_opcode::lda, ca::instruction_operand(ca::operand_type::literal, fixup_8bit_literal(o1.value())));
-        emit(mos6502_opcode::sta, get_register(o2.register_number()));
+        emit(mos6502_opcode::sta, get_register(o2.reg()));
     }
     else if (o1.is_register() && o2.is_literal())
     {
-        emit(mos6502_opcode::lda, get_register(o1.register_number()));
+        emit(mos6502_opcode::lda, get_register(o1.reg()));
         emit(mos6502_opcode::sta, o2);
     }
     else if (o1.is_register() && o2.is_register())
     {
-        emit(mos6502_opcode::lda, get_register(o1.register_number()));
-        emit(mos6502_opcode::sta, get_register(o2.register_number()));
+        emit(mos6502_opcode::lda, get_register(o1.reg()));
+        emit(mos6502_opcode::sta, get_register(o2.reg()));
     }
     else
     {
@@ -34,17 +34,17 @@ void mos6502_target::translate_movl(const ca::instruction_operand &o1, const ca:
 {
     if (o1.is_register() && o2.is_register())
     {
-        emit(mos6502_opcode::lda, get_register(o1.register_number()));
-        emit(mos6502_opcode::sta, get_register(o2.register_number()));
-        emit(mos6502_opcode::lda, get_register(o1.register_number(), 1));
-        emit(mos6502_opcode::sta, get_register(o2.register_number(), 1));
+        emit(mos6502_opcode::lda, get_register(o1.reg()));
+        emit(mos6502_opcode::sta, get_register(o2.reg()));
+        emit(mos6502_opcode::lda, get_register(o1.reg(), 1));
+        emit(mos6502_opcode::sta, get_register(o2.reg(), 1));
     }
     else if (o1.is_literal() && o2.is_register())
     {
         emit(mos6502_opcode::lda, ca::instruction_operand(ca::operand_type::literal, "#<" + o1.value()));
-        emit(mos6502_opcode::sta, get_register(o2.register_number()));
+        emit(mos6502_opcode::sta, get_register(o2.reg()));
         emit(mos6502_opcode::lda, ca::instruction_operand(ca::operand_type::literal, "#>" + o1.value()));
-        emit(mos6502_opcode::sta, get_register(o2.register_number(), 1));
+        emit(mos6502_opcode::sta, get_register(o2.reg(), 1));
     }
     else
     {
@@ -57,7 +57,7 @@ void mos6502_target::translate_movzbl(const ca::instruction_operand &o1, const c
     if (o1.is_literal() && o2.is_register())
     {
         emit(mos6502_opcode::lda, o1);
-        emit(mos6502_opcode::sta, get_register(o2.register_number()));
+        emit(mos6502_opcode::sta, get_register(o2.reg()));
     }
     else
     {

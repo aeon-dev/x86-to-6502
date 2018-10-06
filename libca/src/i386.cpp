@@ -1,4 +1,5 @@
 #include <ca/i386.h>
+#include <ca/instruction_operand.h>
 #include "logger.h"
 #include <regex>
 #include <iostream>
@@ -108,76 +109,56 @@ static auto parse_operand(std::string o) -> instruction_operand
         return {};
 
     if (o[0] != '%')
-        return instruction_operand(operand_type::literal, std::move(o));
+        return {operand_type::literal, std::move(o)};
 
     if (o == "%al")
-    {
-        return instruction_operand(operand_type::reg, 0x00);
-    }
+        return {i386_register::al};
     else if (o == "%ah")
-    {
-        return instruction_operand(operand_type::reg, 0x01);
-    }
+        return {i386_register::ah};
+    else if (o == "%ax")
+        return {i386_register::ax};
+    else if (o == "%eax")
+        return {i386_register::eax};
     else if (o == "%bl")
-    {
-        return instruction_operand(operand_type::reg, 0x02);
-    }
+        return {i386_register::bl};
     else if (o == "%bh")
-    {
-        return instruction_operand(operand_type::reg, 0x03);
-    }
+        return {i386_register::bh};
+    else if (o == "%bx")
+        return {i386_register::bx};
+    else if (o == "%ebx")
+        return {i386_register::ebx};
     else if (o == "%cl")
-    {
-        return instruction_operand(operand_type::reg, 0x04);
-    }
+        return {i386_register::cl};
     else if (o == "%ch")
-    {
-        return instruction_operand(operand_type::reg, 0x05);
-    }
+        return {i386_register::ch};
+    else if (o == "%cx")
+        return {i386_register::cx};
+    else if (o == "%ecx")
+        return {i386_register::ecx};
     else if (o == "%dl")
-    {
-        return instruction_operand(operand_type::reg, 0x06);
-    }
+        return {i386_register::dl};
     else if (o == "%dh")
-    {
-        return instruction_operand(operand_type::reg, 0x07);
-    }
+        return {i386_register::dh};
+    else if (o == "%dx")
+        return {i386_register::dx};
+    else if (o == "%edx")
+        return {i386_register::edx};
     else if (o == "%sil")
-    {
-        return instruction_operand(operand_type::reg, 0x08);
-    }
+        return {i386_register::sil};
     else if (o == "%dil")
-    {
-        return instruction_operand(operand_type::reg, 0x0A);
-    }
-    else if (o == "%ax" || o == "%eax")
-    {
-        return instruction_operand(operand_type::reg, 0x10);
-    }
-    else if (o == "%bx" || o == "%ebx")
-    {
-        return instruction_operand(operand_type::reg, 0x11);
-    }
-    else if (o == "%cx" || o == "%ecx")
-    {
-        return instruction_operand(operand_type::reg, 0x12);
-    }
-    else if (o == "%dx" || o == "%edx")
-    {
-        return instruction_operand(operand_type::reg, 0x13);
-    }
-    else if (o == "%si" || o == "%esi")
-    {
-        return instruction_operand(operand_type::reg, 0x14);
-    }
-    else if (o == "%di" || o == "%edi")
-    {
-        return instruction_operand(operand_type::reg, 0x15);
-    }
-    else if (o == "%sp" || o == "%esp")
-    {
-        return instruction_operand(operand_type::reg, 0x16);
-    }
+        return {i386_register::dil};
+    else if (o == "%si")
+        return {i386_register::si};
+    else if (o == "%esi")
+        return {i386_register::esi};
+    else if (o == "%di")
+        return {i386_register::di};
+    else if (o == "%edi")
+        return {i386_register::edi};
+    else if (o == "%sp")
+        return {i386_register::sp};
+    else if (o == "%esp")
+        return {i386_register::esp};
 
     throw std::runtime_error("Unknown register operand: '" + o + "'");
 }

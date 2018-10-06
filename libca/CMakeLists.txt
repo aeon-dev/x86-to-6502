@@ -5,6 +5,7 @@ set(LIBCA_SOURCES
     src/logger.h
     src/logger.cpp
     include/ca/i386.h
+    include/ca/i386_register.h
     include/ca/asm_line.h
     include/ca/instruction_operand.h
     src/target.cpp
