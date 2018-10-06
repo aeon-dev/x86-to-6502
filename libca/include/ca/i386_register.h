@@ -3,6 +3,19 @@
 namespace ca
 {
 
+/*
+ 32 bits | Lower 16 bits | Higher 8 bits | Lower 8 bits
+========================================================
+ eax     | ax            | ah            | al
+ ebx     | bx            | bh            | bl
+ ecx     | cx            | ch            | cl
+ edx     | dx            | dh            | dl
+ esi     | si            |               | sil
+ edi     | di            |               | dil
+ ebp     | bp            |               | bpl
+ esp     | sp            |               | spl
+*/
+
 enum class i386_register
 {
     unknown,
