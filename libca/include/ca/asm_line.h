@@ -10,22 +10,22 @@ struct asm_line
 {
     enum class line_type
     {
-        Empty,
-        Comment,
-        Label,
-        Instruction,
-        Directive,
-        MissingOpcode
+        empty,
+        comment,
+        label,
+        instruction,
+        directive,
+        missing_opcode
     };
 
     asm_line()
-        : type_{line_type::Empty}
+        : type_{line_type::empty}
         , text_{}
     {
     }
 
     explicit asm_line(std::string line)
-        : type_{line_type::Comment}
+        : type_{line_type::comment}
         , text_{std::move(line)}
     {
     }
@@ -43,32 +43,32 @@ struct asm_line
 
     auto is_empty() const noexcept
     {
-        return type_ == line_type::Empty;
+        return type_ == line_type::empty;
     }
 
     auto is_comment() const noexcept
     {
-        return type_ == line_type::Comment;
+        return type_ == line_type::comment;
     }
 
     auto is_label() const noexcept
     {
-        return type_ == line_type::Label;
+        return type_ == line_type::label;
     }
 
     auto is_instruction() const noexcept
     {
-        return type_ == line_type::Instruction;
+        return type_ == line_type::instruction;
     }
 
     auto is_directive() const noexcept
     {
-        return type_ == line_type::Directive;
+        return type_ == line_type::directive;
     }
 
     auto is_missing_opcode() const noexcept
     {
-        return type_ == line_type::MissingOpcode;
+        return type_ == line_type::missing_opcode;
     }
 
     const auto &text() const noexcept

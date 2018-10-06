@@ -17,36 +17,36 @@ static void translate_instructions(const std::vector<i386> &instructions, target
         {
             switch (i.type())
             {
-                case asm_line::line_type::Label:
+                case asm_line::line_type::label:
                 {
                     target.translate_label(i.text());
                     break;
                 }
-                case asm_line::line_type::Directive:
+                case asm_line::line_type::directive:
                 {
                     target.translate_directive(i.text());
                     break;
                 }
-                case asm_line::line_type::Instruction:
+                case asm_line::line_type::instruction:
                 {
                     target.set_current_text(i.line_text_unindented());
                     target.translate(i);
                     break;
                 }
-                case asm_line::line_type::MissingOpcode:
+                case asm_line::line_type::missing_opcode:
                 {
                     std::cerr << "Missing opcode: " << i.text() << '\n';
                     break;
                 }
-                case asm_line::line_type::Empty:
-                case asm_line::line_type::Comment:
+                case asm_line::line_type::empty:
+                case asm_line::line_type::comment:
                 default:
                     break;
             }
         }
         catch (const std::exception &e)
         {
-            log(LogLevel::Error, i, e.what());
+            log(log_level::error, i, e.what());
         }
     }
 }

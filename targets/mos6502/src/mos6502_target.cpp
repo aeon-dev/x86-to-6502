@@ -103,7 +103,7 @@ static auto fix_long_branches(std::vector<mos6502> &instructions, int &branch_pa
                     std::next(std::begin(instructions), op + 1),
                     mos6502(mos6502_opcode::jmp, ca::instruction_operand(ca::operand_type::literal, going_to)));
                 instructions.insert(std::next(std::begin(instructions), op + 2),
-                                    mos6502(ca::asm_line::line_type::Label, new_pos));
+                                    mos6502(ca::asm_line::line_type::label, new_pos));
 
                 instructions[op].set_comment(comment);
                 instructions[op + 1].set_comment(comment);
@@ -192,15 +192,15 @@ void mos6502_target::finalize()
 
 void mos6502_target::translate_unknown(const std::string &line)
 {
-    emit(ca::asm_line::line_type::MissingOpcode, line);
+    emit(ca::asm_line::line_type::missing_opcode, line);
 }
 
 void mos6502_target::translate_label(const std::string &line)
 {
-    emit(ca::asm_line::line_type::Label, line);
+    emit(ca::asm_line::line_type::label, line);
 }
 
 void mos6502_target::translate_directive(const std::string &line)
 {
-    emit(ca::asm_line::line_type::Directive, line);
+    emit(ca::asm_line::line_type::directive, line);
 }

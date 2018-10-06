@@ -96,7 +96,7 @@ static auto is_comparison(const mos6502_opcode o) -> bool
 } // namespace internal
 
 mos6502::mos6502(const mos6502_opcode o)
-    : asm_line{line_type::Instruction, to_string(o)}
+    : asm_line{line_type::instruction, to_string(o)}
     , opcode_{o}
     , is_branch_{internal::is_branch(o)}
     , is_comparison_{internal::is_comparison(o)}
@@ -110,7 +110,7 @@ mos6502::mos6502(const line_type t, std::string s)
 }
 
 mos6502::mos6502(const mos6502_opcode o, ca::instruction_operand t_o)
-    : asm_line{line_type::Instruction, to_string(o)}
+    : asm_line{line_type::instruction, to_string(o)}
     , opcode_{o}
     , operand_{std::move(t_o)}
     , is_branch_{internal::is_branch(o)}
@@ -194,21 +194,21 @@ auto mos6502::to_string() const -> std::string
 {
     switch (type())
     {
-        case asm_line::line_type::Comment:
-        case asm_line::line_type::Label:
+        case asm_line::line_type::comment:
+        case asm_line::line_type::label:
             return text(); // + ':';
-        case asm_line::line_type::Directive:
-        case asm_line::line_type::Instruction:
+        case asm_line::line_type::directive:
+        case asm_line::line_type::instruction:
         {
             const std::string line = "    " + text() + ' ' + operand_.value();
             return line + std::string(static_cast<size_t>(std::max(15 - static_cast<int>(line.size()), 1)), ' ') +
                    "; " + comment_;
         }
-        case asm_line::line_type::MissingOpcode:
+        case asm_line::line_type::missing_opcode:
         {
             return ";   " + text() + " !!!MISSING!!! !!!MISSING!!!";
         }
-        case line_type::Empty:
+        case line_type::empty:
         default:
             break;
     }

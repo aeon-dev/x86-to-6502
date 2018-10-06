@@ -17,11 +17,11 @@ static auto parse_opcode(asm_line::line_type t, const std::string &o) -> i386_op
 {
     switch (t)
     {
-        case asm_line::line_type::Label:
+        case asm_line::line_type::label:
             return i386_opcode::unknown;
-        case asm_line::line_type::Directive:
+        case asm_line::line_type::directive:
             return i386_opcode::unknown;
-        case asm_line::line_type::Instruction:
+        case asm_line::line_type::instruction:
         {
             if (o == "movzwl")
                 return i386_opcode::movzwl;
@@ -217,7 +217,7 @@ auto i386::parse() -> std::vector<i386>
         }
         catch (const std::exception &e)
         {
-            log(LogLevel::Error, lineno, line, e.what());
+            log(log_level::error, lineno, line, e.what());
         }
 
         ++lineno;
@@ -310,7 +310,7 @@ auto i386::parse(const std::string &line, const int line_number) -> i386
     std::smatch match;
     if (std::regex_match(line, match, Label))
     {
-        return {line_number, line, asm_line::line_type::Label, match[1]};
+        return {line_number, line, asm_line::line_type::label, match[1]};
     }
     else if (std::regex_match(line, match, Comment))
     {
@@ -318,19 +318,19 @@ auto i386::parse(const std::string &line, const int line_number) -> i386
     }
     else if (std::regex_match(line, match, Directive))
     {
-        return {line_number, line, asm_line::line_type::Directive, match[1]};
+        return {line_number, line, asm_line::line_type::directive, match[1]};
     }
     else if (std::regex_match(line, match, UnaryInstruction))
     {
-        return {line_number, line, asm_line::line_type::Instruction, match[1], match[2]};
+        return {line_number, line, asm_line::line_type::instruction, match[1], match[2]};
     }
     else if (std::regex_match(line, match, BinaryInstruction))
     {
-        return {line_number, line, asm_line::line_type::Instruction, match[1], match[2], match[3]};
+        return {line_number, line, asm_line::line_type::instruction, match[1], match[2], match[3]};
     }
     else if (std::regex_match(line, match, Instruction))
     {
-        return {line_number, line, asm_line::line_type::Instruction, match[1]};
+        return {line_number, line, asm_line::line_type::instruction, match[1]};
     }
     else if (line.empty())
     {
