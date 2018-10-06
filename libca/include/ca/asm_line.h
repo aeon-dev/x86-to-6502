@@ -26,7 +26,7 @@ struct asm_line
 
     explicit asm_line(std::string line)
         : type_{line_type::Comment}
-        , text_{line}
+        , text_{std::move(line)}
     {
     }
 
