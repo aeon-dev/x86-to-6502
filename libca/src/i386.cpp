@@ -13,6 +13,77 @@ namespace ca
 namespace internal
 {
 
+// clang-format off
+static std::map<std::string, i386_opcode> opcode_string_lookup{
+    {"addb",   i386_opcode::addb},
+    {"addl",   i386_opcode::addl},
+    {"andb",   i386_opcode::andb},
+    {"andl",   i386_opcode::andl},
+    {"calll",  i386_opcode::calll},
+    {"cmpb",   i386_opcode::cmpb},
+    {"decb",   i386_opcode::decb},
+    {"decl",   i386_opcode::decl},
+    {"incb",   i386_opcode::incb},
+    {"incl",   i386_opcode::incl},
+    {"je",     i386_opcode::je},
+    {"jmp",    i386_opcode::jmp},
+    {"jne",    i386_opcode::jne},
+    {"js",     i386_opcode::js},
+    {"movb",   i386_opcode::movb},
+    {"movl",   i386_opcode::movl},
+    {"movzbl", i386_opcode::movzbl},
+    {"movzwl", i386_opcode::movzwl},
+    {"negb",   i386_opcode::negb},
+    {"notb",   i386_opcode::notb},
+    {"orb",    i386_opcode::orb},
+    {"orl",    i386_opcode::orl},
+    {"pushl",  i386_opcode::pushl},
+    {"rep",    i386_opcode::rep},
+    {"ret",    i386_opcode::ret},
+    {"retl",   i386_opcode::retl},
+    {"sall",   i386_opcode::sall},
+    {"sarl",   i386_opcode::sarl},
+    {"sbbb",   i386_opcode::sbbb},
+    {"shrb",   i386_opcode::shrb},
+    {"shrl",   i386_opcode::shrl},
+    {"subb",   i386_opcode::subb},
+    {"subl",   i386_opcode::subl},
+    {"testb",  i386_opcode::testb},
+    {"xorl",   i386_opcode::xorl}
+};
+
+static std::map<std::string, i386_register> register_name_lookup{
+    {"%al",  i386_register::al },
+    {"%ah",  i386_register::ah },
+    {"%ax",  i386_register::ax },
+    {"%eax", i386_register::eax},
+    {"%bl",  i386_register::bl },
+    {"%bh",  i386_register::bh },
+    {"%bx",  i386_register::bx },
+    {"%ebx", i386_register::ebx},
+    {"%cl",  i386_register::cl },
+    {"%ch",  i386_register::ch },
+    {"%cx",  i386_register::cx },
+    {"%ecx", i386_register::ecx},
+    {"%dl",  i386_register::dl },
+    {"%dh",  i386_register::dh },
+    {"%dx",  i386_register::dx },
+    {"%edx", i386_register::edx},
+    {"%sil", i386_register::sil},
+    {"%si",  i386_register::si },
+    {"%esi", i386_register::esi},
+    {"%dil", i386_register::dil},
+    {"%di",  i386_register::di },
+    {"%edi", i386_register::edi},
+    {"%bpl", i386_register::bpl},
+    {"%bp",  i386_register::bp },
+    {"%ebp", i386_register::ebp},
+    {"%spl", i386_register::spl},
+    {"%sp",  i386_register::sp },
+    {"%esp", i386_register::esp}
+};
+// clang-format on
+
 static auto parse_opcode(asm_line::line_type t, const std::string &o) -> i386_opcode
 {
     switch (t)
@@ -23,76 +94,9 @@ static auto parse_opcode(asm_line::line_type t, const std::string &o) -> i386_op
             return i386_opcode::unknown;
         case asm_line::line_type::instruction:
         {
-            if (o == "movzwl")
-                return i386_opcode::movzwl;
-            if (o == "movzbl")
-                return i386_opcode::movzbl;
-            if (o == "shrb")
-                return i386_opcode::shrb;
-            if (o == "shrl")
-                return i386_opcode::shrl;
-            if (o == "xorl")
-                return i386_opcode::xorl;
-            if (o == "andl")
-                return i386_opcode::andl;
-            if (o == "ret")
-                return i386_opcode::ret;
-            if (o == "movb")
-                return i386_opcode::movb;
-            if (o == "cmpb")
-                return i386_opcode::cmpb;
-            if (o == "movl")
-                return i386_opcode::movl;
-            if (o == "jmp")
-                return i386_opcode::jmp;
-            if (o == "testb")
-                return i386_opcode::testb;
-            if (o == "incl")
-                return i386_opcode::incl;
-            if (o == "sarl")
-                return i386_opcode::sarl;
-            if (o == "decl")
-                return i386_opcode::decl;
-            if (o == "jne")
-                return i386_opcode::jne;
-            if (o == "je")
-                return i386_opcode::je;
-            if (o == "js")
-                return i386_opcode::js;
-            if (o == "subl")
-                return i386_opcode::subl;
-            if (o == "subb")
-                return i386_opcode::subb;
-            if (o == "addl")
-                return i386_opcode::addl;
-            if (o == "addb")
-                return i386_opcode::addb;
-            if (o == "sall")
-                return i386_opcode::sall;
-            if (o == "orl")
-                return i386_opcode::orl;
-            if (o == "andb")
-                return i386_opcode::andb;
-            if (o == "orb")
-                return i386_opcode::orb;
-            if (o == "decb")
-                return i386_opcode::decb;
-            if (o == "incb")
-                return i386_opcode::incb;
-            if (o == "rep")
-                return i386_opcode::rep;
-            if (o == "notb")
-                return i386_opcode::notb;
-            if (o == "negb")
-                return i386_opcode::negb;
-            if (o == "sbbb")
-                return i386_opcode::sbbb;
-            if (o == "pushl")
-                return i386_opcode::pushl;
-            if (o == "retl")
-                return i386_opcode::retl;
-            if (o == "calll")
-                return i386_opcode::calll;
+            const auto result = opcode_string_lookup.find(o);
+            if (result != std::end(opcode_string_lookup))
+                return result->second;
 
             return i386_opcode::unknown;
         }
@@ -111,54 +115,9 @@ static auto parse_operand(std::string o) -> instruction_operand
     if (o[0] != '%')
         return {operand_type::literal, std::move(o)};
 
-    if (o == "%al")
-        return {i386_register::al};
-    else if (o == "%ah")
-        return {i386_register::ah};
-    else if (o == "%ax")
-        return {i386_register::ax};
-    else if (o == "%eax")
-        return {i386_register::eax};
-    else if (o == "%bl")
-        return {i386_register::bl};
-    else if (o == "%bh")
-        return {i386_register::bh};
-    else if (o == "%bx")
-        return {i386_register::bx};
-    else if (o == "%ebx")
-        return {i386_register::ebx};
-    else if (o == "%cl")
-        return {i386_register::cl};
-    else if (o == "%ch")
-        return {i386_register::ch};
-    else if (o == "%cx")
-        return {i386_register::cx};
-    else if (o == "%ecx")
-        return {i386_register::ecx};
-    else if (o == "%dl")
-        return {i386_register::dl};
-    else if (o == "%dh")
-        return {i386_register::dh};
-    else if (o == "%dx")
-        return {i386_register::dx};
-    else if (o == "%edx")
-        return {i386_register::edx};
-    else if (o == "%sil")
-        return {i386_register::sil};
-    else if (o == "%dil")
-        return {i386_register::dil};
-    else if (o == "%si")
-        return {i386_register::si};
-    else if (o == "%esi")
-        return {i386_register::esi};
-    else if (o == "%di")
-        return {i386_register::di};
-    else if (o == "%edi")
-        return {i386_register::edi};
-    else if (o == "%sp")
-        return {i386_register::sp};
-    else if (o == "%esp")
-        return {i386_register::esp};
+    const auto result = register_name_lookup.find(o);
+    if (result != std::end(register_name_lookup))
+        return result->second;
 
     throw std::runtime_error("Unknown register operand: '" + o + "'");
 }
