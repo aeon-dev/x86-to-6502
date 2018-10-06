@@ -160,7 +160,7 @@ auto i386::parse() -> std::vector<i386>
 {
     int lineno = 0;
 
-    std::vector<ca::i386> instructions;
+    std::vector<i386> instructions;
 
     while (std::cin.good())
     {
@@ -169,7 +169,7 @@ auto i386::parse() -> std::vector<i386>
 
         try
         {
-            auto instruction = ca::i386::parse(line, lineno);
+            auto instruction = parse(line, lineno);
 
             if (!instruction.is_empty() && !instruction.is_comment())
                 instructions.emplace_back(std::move(instruction));
