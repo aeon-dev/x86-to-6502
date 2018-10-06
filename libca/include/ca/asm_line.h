@@ -36,6 +36,12 @@ struct asm_line
     {
     }
 
+    asm_line(asm_line &&) noexcept = default;
+    auto operator=(asm_line &&) noexcept -> asm_line & = default;
+
+    asm_line(const asm_line &) noexcept = delete;
+    auto operator=(const asm_line &) noexcept -> asm_line & = delete;
+
     auto type() const noexcept
     {
         return type_;
