@@ -17,6 +17,10 @@ add_library(target_mos6502 STATIC
     ${LIB_TARGET_MOS6502_SOURCES}
 )
 
+set_target_properties(target_mos6502 PROPERTIES
+    FOLDER targets
+)
+
 target_link_libraries(target_mos6502
     libca
 )

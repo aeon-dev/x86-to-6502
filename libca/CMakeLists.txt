@@ -17,6 +17,10 @@ add_library(libca STATIC
     ${LIBCA_SOURCES}
 )
 
+set_target_properties(libca PROPERTIES
+    FOLDER libraries
+)
+
 target_include_directories(libca
     PRIVATE src
     PUBLIC include

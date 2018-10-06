@@ -7,4 +7,5 @@ add_unit_test_suite(
         main.cpp
         test_parse_x86_asm_line.cpp
     LIBRARIES libca
+    FOLDER libraries/tests
 )

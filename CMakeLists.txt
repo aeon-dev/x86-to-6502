@@ -9,6 +9,9 @@ set(CMAKE_CXX_STANDARD 17)
 # analysis tools.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Enable project folders/grouping in IDE solution files like Visual Studio.
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 include(CTest)
 enable_testing()
 
