@@ -1,0 +1,4 @@
+[submodule "dep/googletest"]
+	path = dep/googletest
+	url = ../../aeon-external-dependencies/googletest.git
+	branch = submodule
