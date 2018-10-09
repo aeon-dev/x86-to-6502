@@ -40,6 +40,10 @@ main:
  * All values are truncated to 8 bit. We have no support for 16bit math or pointers yet
  * Only as many instructions are supported as I have needed to support to get my test cases working
 
+# Building
+
+This project contains submodules. Clone recursive.
+
 # To Do
 
 *Everything*
