@@ -1,5 +1,5 @@
 #include <ca/cross_assembler.h>
-#include <ca/i386.h>
+#include <ca/intel_386.h>
 #include "logger.h"
 #include <iostream>
 
@@ -9,7 +9,7 @@ namespace ca
 namespace internal
 {
 
-static void translate_instructions(const std::vector<i386> &instructions, target &target)
+static void translate_instructions(const std::vector<intel_386> &instructions, target &target)
 {
     for (const auto &i : instructions)
     {
@@ -60,7 +60,7 @@ cross_assembler::cross_assembler(target &t)
 
 void cross_assembler::assemble()
 {
-    auto instructions = i386::parse();
+    auto instructions = intel_386::parse();
     internal::translate_instructions(instructions, target_);
     target_.finalize();
 }

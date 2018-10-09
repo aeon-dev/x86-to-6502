@@ -60,79 +60,79 @@ private:
         return s;
     }
 
-    auto get_register(const ca::i386_register reg, const int offset = 0) const -> ca::instruction_operand
+    auto get_register(const ca::intel_386_register reg, const int offset = 0) const -> ca::instruction_operand
     {
         switch (reg)
         {
             //  http://sta.c64.org/cbm64mem.html
-            case ca::i386_register::al:
+            case ca::intel_386_register::al:
                 return ca::instruction_operand(ca::operand_type::literal, "$03"); // unused, fp->int routine pointer
-            case ca::i386_register::ah:
+            case ca::intel_386_register::ah:
                 return ca::instruction_operand(ca::operand_type::literal, "$04");
-            case ca::i386_register::bl:
+            case ca::intel_386_register::bl:
                 return ca::instruction_operand(ca::operand_type::literal, "$05"); // unused, int->fp routine pointer
-            case ca::i386_register::bh:
+            case ca::intel_386_register::bh:
                 return ca::instruction_operand(ca::operand_type::literal, "$06");
-            case ca::i386_register::cl:
+            case ca::intel_386_register::cl:
                 return ca::instruction_operand(ca::operand_type::literal, "$fb"); // unused
-            case ca::i386_register::ch:
+            case ca::intel_386_register::ch:
                 return ca::instruction_operand(ca::operand_type::literal, "$fc"); // unused
-            case ca::i386_register::dl:
+            case ca::intel_386_register::dl:
                 return ca::instruction_operand(ca::operand_type::literal, "$fd"); // unused
-            case ca::i386_register::dh:
+            case ca::intel_386_register::dh:
                 return ca::instruction_operand(ca::operand_type::literal, "$fe"); // unused
-            case ca::i386_register::sil:
+            case ca::intel_386_register::sil:
                 return ca::instruction_operand(ca::operand_type::literal, "$22"); // unused
-            case ca::i386_register::dil:
+            case ca::intel_386_register::dil:
                 return ca::instruction_operand(ca::operand_type::literal, "$39"); // Current BASIC line number
-            case ca::i386_register::ax:
-            case ca::i386_register::eax:
+            case ca::intel_386_register::ax:
+            case ca::intel_386_register::eax:
                 if (offset == 0)
-                    return get_register(ca::i386_register::al);
+                    return get_register(ca::intel_386_register::al);
                 else if (offset == 1)
-                    return get_register(ca::i386_register::ah);
+                    return get_register(ca::intel_386_register::ah);
                 else
                     throw std::runtime_error("Unexpected register offset.");
-            case ca::i386_register::bx:
-            case ca::i386_register::ebx:
+            case ca::intel_386_register::bx:
+            case ca::intel_386_register::ebx:
                 if (offset == 0)
-                    return get_register(ca::i386_register::bl);
+                    return get_register(ca::intel_386_register::bl);
                 else if (offset == 1)
-                    return get_register(ca::i386_register::bh);
+                    return get_register(ca::intel_386_register::bh);
                 else
                     throw std::runtime_error("Unexpected register offset.");
-            case ca::i386_register::cx:
-            case ca::i386_register::ecx:
+            case ca::intel_386_register::cx:
+            case ca::intel_386_register::ecx:
                 if (offset == 0)
-                    return get_register(ca::i386_register::cl);
+                    return get_register(ca::intel_386_register::cl);
                 else if (offset == 1)
-                    return get_register(ca::i386_register::ch);
+                    return get_register(ca::intel_386_register::ch);
                 else
                     throw std::runtime_error("Unexpected register offset.");
-            case ca::i386_register::dx:
-            case ca::i386_register::edx:
+            case ca::intel_386_register::dx:
+            case ca::intel_386_register::edx:
                 if (offset == 0)
-                    return get_register(ca::i386_register::dl);
+                    return get_register(ca::intel_386_register::dl);
                 else if (offset == 1)
-                    return get_register(ca::i386_register::dh);
+                    return get_register(ca::intel_386_register::dh);
                 else
                     throw std::runtime_error("Unexpected register offset.");
-            case ca::i386_register::si:
+            case ca::intel_386_register::si:
                 if (offset == 0)
-                    return get_register(ca::i386_register::sil);
+                    return get_register(ca::intel_386_register::sil);
                 else if (offset == 1)
                     return ca::instruction_operand(ca::operand_type::literal, "$23"); // unused
                 else
                     throw std::runtime_error("Unexpected register offset.");
-            case ca::i386_register::di:
+            case ca::intel_386_register::di:
                 if (offset == 0)
-                    return get_register(ca::i386_register::dil);
+                    return get_register(ca::intel_386_register::dil);
                 else if (offset == 1)
                     return ca::instruction_operand(ca::operand_type::literal, "$3a"); // Current BASIC line number
                 else
                     throw std::runtime_error("Unexpected register offset.");
-            case ca::i386_register::sp:
-            case ca::i386_register::esp:
+            case ca::intel_386_register::sp:
+            case ca::intel_386_register::esp:
                 if (offset == 0)
                     return ca::instruction_operand(ca::operand_type::literal,
                                                    "$3d"); // Pointer to next BASIC instruction

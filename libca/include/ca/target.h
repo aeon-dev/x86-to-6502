@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ca/i386.h>
+#include <ca/intel_386.h>
 #include <string>
 #include <vector>
 
@@ -24,7 +24,7 @@ public:
     virtual void translate_label(const std::string &line) = 0;
     virtual void translate_directive(const std::string &line) = 0;
 
-    void translate(const i386 &opcode);
+    void translate(const intel_386 &opcode);
 
     virtual void set_current_text(const std::string &text) = 0;
     virtual void finalize() = 0;

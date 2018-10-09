@@ -5,7 +5,7 @@
 namespace ca
 {
 
-class i386;
+class intel_386;
 
 class cross_assembler
 {

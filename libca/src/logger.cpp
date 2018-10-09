@@ -1,5 +1,5 @@
 #include "logger.h"
-#include <ca/i386.h>
+#include <ca/intel_386.h>
 #include <iostream>
 
 namespace ca
@@ -17,7 +17,7 @@ static auto to_string(const log_level ll)
     return "unknown";
 }
 
-void log(log_level ll, const i386 &i, const std::string &message)
+void log(log_level ll, const intel_386 &i, const std::string &message)
 {
     std::cerr << to_string(ll) << ": " << i.line_number() << ": " << message << ": `" << i.line_text() << "`\n";
 }

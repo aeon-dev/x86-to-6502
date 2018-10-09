@@ -1,14 +1,14 @@
-#include <ca/i386.h>
+#include <ca/intel_386.h>
 #include <gtest/gtest.h>
 
 static void test_line(const std::string &str, const ca::asm_line::line_type expected)
 {
-    ASSERT_NO_THROW(const auto line = ca::i386::parse(str, 0); EXPECT_EQ(expected, line.type()););
+    ASSERT_NO_THROW(const auto line = ca::intel_386::parse(str, 0); EXPECT_EQ(expected, line.type()););
 }
 
 TEST(test_parse_x86_asm_line, test_empty_line)
 {
-    ca::i386 line = ca::i386::parse("", 0);
+    ca::intel_386 line = ca::intel_386::parse("", 0);
     EXPECT_TRUE(line.is_empty());
     EXPECT_FALSE(line.is_comment());
     EXPECT_FALSE(line.is_label());

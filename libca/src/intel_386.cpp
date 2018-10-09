@@ -1,4 +1,4 @@
-#include <ca/i386.h>
+#include <ca/intel_386.h>
 #include <ca/instruction_operand.h>
 #include "logger.h"
 #include <regex>
@@ -14,91 +14,91 @@ namespace internal
 {
 
 // clang-format off
-static std::map<std::string, i386_opcode> opcode_string_lookup{
-    {"addb",   i386_opcode::addb},
-    {"addl",   i386_opcode::addl},
-    {"andb",   i386_opcode::andb},
-    {"andl",   i386_opcode::andl},
-    {"calll",  i386_opcode::calll},
-    {"cmpb",   i386_opcode::cmpb},
-    {"decb",   i386_opcode::decb},
-    {"decl",   i386_opcode::decl},
-    {"incb",   i386_opcode::incb},
-    {"incl",   i386_opcode::incl},
-    {"je",     i386_opcode::je},
-    {"jmp",    i386_opcode::jmp},
-    {"jne",    i386_opcode::jne},
-    {"js",     i386_opcode::js},
-    {"movb",   i386_opcode::movb},
-    {"movl",   i386_opcode::movl},
-    {"movzbl", i386_opcode::movzbl},
-    {"movzwl", i386_opcode::movzwl},
-    {"negb",   i386_opcode::negb},
-    {"notb",   i386_opcode::notb},
-    {"orb",    i386_opcode::orb},
-    {"orl",    i386_opcode::orl},
-    {"pushl",  i386_opcode::pushl},
-    {"rep",    i386_opcode::rep},
-    {"ret",    i386_opcode::ret},
-    {"retl",   i386_opcode::retl},
-    {"sall",   i386_opcode::sall},
-    {"sarl",   i386_opcode::sarl},
-    {"sbbb",   i386_opcode::sbbb},
-    {"shrb",   i386_opcode::shrb},
-    {"shrl",   i386_opcode::shrl},
-    {"subb",   i386_opcode::subb},
-    {"subl",   i386_opcode::subl},
-    {"testb",  i386_opcode::testb},
-    {"xorl",   i386_opcode::xorl}
+static std::map<std::string, intel_386_opcode> opcode_string_lookup{
+    {"addb",   intel_386_opcode::addb},
+    {"addl",   intel_386_opcode::addl},
+    {"andb",   intel_386_opcode::andb},
+    {"andl",   intel_386_opcode::andl},
+    {"calll",  intel_386_opcode::calll},
+    {"cmpb",   intel_386_opcode::cmpb},
+    {"decb",   intel_386_opcode::decb},
+    {"decl",   intel_386_opcode::decl},
+    {"incb",   intel_386_opcode::incb},
+    {"incl",   intel_386_opcode::incl},
+    {"je",     intel_386_opcode::je},
+    {"jmp",    intel_386_opcode::jmp},
+    {"jne",    intel_386_opcode::jne},
+    {"js",     intel_386_opcode::js},
+    {"movb",   intel_386_opcode::movb},
+    {"movl",   intel_386_opcode::movl},
+    {"movzbl", intel_386_opcode::movzbl},
+    {"movzwl", intel_386_opcode::movzwl},
+    {"negb",   intel_386_opcode::negb},
+    {"notb",   intel_386_opcode::notb},
+    {"orb",    intel_386_opcode::orb},
+    {"orl",    intel_386_opcode::orl},
+    {"pushl",  intel_386_opcode::pushl},
+    {"rep",    intel_386_opcode::rep},
+    {"ret",    intel_386_opcode::ret},
+    {"retl",   intel_386_opcode::retl},
+    {"sall",   intel_386_opcode::sall},
+    {"sarl",   intel_386_opcode::sarl},
+    {"sbbb",   intel_386_opcode::sbbb},
+    {"shrb",   intel_386_opcode::shrb},
+    {"shrl",   intel_386_opcode::shrl},
+    {"subb",   intel_386_opcode::subb},
+    {"subl",   intel_386_opcode::subl},
+    {"testb",  intel_386_opcode::testb},
+    {"xorl",   intel_386_opcode::xorl}
 };
 
-static std::map<std::string, i386_register> register_name_lookup{
-    {"%al",  i386_register::al },
-    {"%ah",  i386_register::ah },
-    {"%ax",  i386_register::ax },
-    {"%eax", i386_register::eax},
-    {"%bl",  i386_register::bl },
-    {"%bh",  i386_register::bh },
-    {"%bx",  i386_register::bx },
-    {"%ebx", i386_register::ebx},
-    {"%cl",  i386_register::cl },
-    {"%ch",  i386_register::ch },
-    {"%cx",  i386_register::cx },
-    {"%ecx", i386_register::ecx},
-    {"%dl",  i386_register::dl },
-    {"%dh",  i386_register::dh },
-    {"%dx",  i386_register::dx },
-    {"%edx", i386_register::edx},
-    {"%sil", i386_register::sil},
-    {"%si",  i386_register::si },
-    {"%esi", i386_register::esi},
-    {"%dil", i386_register::dil},
-    {"%di",  i386_register::di },
-    {"%edi", i386_register::edi},
-    {"%bpl", i386_register::bpl},
-    {"%bp",  i386_register::bp },
-    {"%ebp", i386_register::ebp},
-    {"%spl", i386_register::spl},
-    {"%sp",  i386_register::sp },
-    {"%esp", i386_register::esp}
+static std::map<std::string, intel_386_register> register_name_lookup{
+    {"%al",  intel_386_register::al },
+    {"%ah",  intel_386_register::ah },
+    {"%ax",  intel_386_register::ax },
+    {"%eax", intel_386_register::eax},
+    {"%bl",  intel_386_register::bl },
+    {"%bh",  intel_386_register::bh },
+    {"%bx",  intel_386_register::bx },
+    {"%ebx", intel_386_register::ebx},
+    {"%cl",  intel_386_register::cl },
+    {"%ch",  intel_386_register::ch },
+    {"%cx",  intel_386_register::cx },
+    {"%ecx", intel_386_register::ecx},
+    {"%dl",  intel_386_register::dl },
+    {"%dh",  intel_386_register::dh },
+    {"%dx",  intel_386_register::dx },
+    {"%edx", intel_386_register::edx},
+    {"%sil", intel_386_register::sil},
+    {"%si",  intel_386_register::si },
+    {"%esi", intel_386_register::esi},
+    {"%dil", intel_386_register::dil},
+    {"%di",  intel_386_register::di },
+    {"%edi", intel_386_register::edi},
+    {"%bpl", intel_386_register::bpl},
+    {"%bp",  intel_386_register::bp },
+    {"%ebp", intel_386_register::ebp},
+    {"%spl", intel_386_register::spl},
+    {"%sp",  intel_386_register::sp },
+    {"%esp", intel_386_register::esp}
 };
 // clang-format on
 
-static auto parse_opcode(asm_line::line_type t, const std::string &o) -> i386_opcode
+static auto parse_opcode(asm_line::line_type t, const std::string &o) -> intel_386_opcode
 {
     switch (t)
     {
         case asm_line::line_type::label:
-            return i386_opcode::unknown;
+            return intel_386_opcode::unknown;
         case asm_line::line_type::directive:
-            return i386_opcode::unknown;
+            return intel_386_opcode::unknown;
         case asm_line::line_type::instruction:
         {
             const auto result = opcode_string_lookup.find(o);
             if (result != std::end(opcode_string_lookup))
                 return result->second;
 
-            return i386_opcode::unknown;
+            return intel_386_opcode::unknown;
         }
         default:
             break;
@@ -124,7 +124,7 @@ static auto parse_operand(std::string o) -> instruction_operand
 
 } // namespace internal
 
-i386::i386(const int line_number)
+intel_386::intel_386(const int line_number)
     : asm_line{}
     , line_number_{line_number}
     , line_text_{}
@@ -134,7 +134,7 @@ i386::i386(const int line_number)
 {
 }
 
-i386::i386(const int line_number, std::string line_text)
+intel_386::intel_386(const int line_number, std::string line_text)
     : asm_line{std::move(line_text)}
     , line_number_{line_number}
     , line_text_{}
@@ -144,8 +144,8 @@ i386::i386(const int line_number, std::string line_text)
 {
 }
 
-i386::i386(const int line_number, std::string line_text, line_type type, std::string opcode, std::string operand1,
-           std::string operand2)
+intel_386::intel_386(const int line_number, std::string line_text, line_type type, std::string opcode,
+                     std::string operand1, std::string operand2)
     : asm_line{type, opcode}
     , line_number_{line_number}
     , line_text_{std::move(line_text)}
@@ -156,11 +156,11 @@ i386::i386(const int line_number, std::string line_text, line_type type, std::st
 }
 
 // TODO: This should be refactored into smaller methods.
-auto i386::parse() -> std::vector<i386>
+auto intel_386::parse() -> std::vector<intel_386>
 {
     int lineno = 0;
 
-    std::vector<i386> instructions;
+    std::vector<intel_386> instructions;
 
     while (std::cin.good())
     {
@@ -257,7 +257,7 @@ auto i386::parse() -> std::vector<i386>
     return instructions;
 }
 
-auto i386::parse(const std::string &line, const int line_number) -> i386
+auto intel_386::parse(const std::string &line, const int line_number) -> intel_386
 {
     std::regex Comment(R"(\s*\#.*)");
     std::regex Label(R"(^(\S+):.*)");
@@ -293,7 +293,7 @@ auto i386::parse(const std::string &line, const int line_number) -> i386
     }
     else if (line.empty())
     {
-        return i386{line_number};
+        return intel_386{line_number};
     }
     else
     {

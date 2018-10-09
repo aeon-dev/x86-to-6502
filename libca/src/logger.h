@@ -5,7 +5,7 @@
 namespace ca
 {
 
-class i386;
+class intel_386;
 
 enum class log_level
 {
@@ -13,7 +13,7 @@ enum class log_level
     error
 };
 
-void log(log_level ll, const i386 &i, const std::string &message);
+void log(log_level ll, const intel_386 &i, const std::string &message);
 void log(log_level ll, const int line_no, const std::string &line, const std::string &message);
 
 } // namespace ca

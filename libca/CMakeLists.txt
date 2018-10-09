@@ -1,11 +1,11 @@
 set(LIBCA_SOURCES
     src/cross_assembler.cpp
     include/ca/cross_assembler.h
-    src/i386.cpp
+    src/intel_386.cpp
     src/logger.h
     src/logger.cpp
-    include/ca/i386.h
-    include/ca/i386_register.h
+    include/ca/intel_386.h
+    include/ca/intel_386_register.h
     include/ca/asm_line.h
     include/ca/instruction_operand.h
     src/target.cpp

@@ -16,7 +16,7 @@ namespace ca
  esp     | sp            |               | spl
 */
 
-enum class i386_register
+enum class intel_386_register
 {
     unknown,
     al,

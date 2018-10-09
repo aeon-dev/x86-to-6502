@@ -39,7 +39,7 @@ void mos6502_target::translate_addl(const ca::instruction_operand &o1, const ca:
         // TODO: Is it the stack pointer (SP/ESP)? Then skip emitting this code.
         // This should probably be an optimization step instead as it should only
         // be skipped if it's used in context of calling a cdecl function.
-        if (o2.reg() != ca::i386_register::sp && o2.reg() != ca::i386_register::esp)
+        if (o2.reg() != ca::intel_386_register::sp && o2.reg() != ca::intel_386_register::esp)
         {
             emit(mos6502_opcode::lda, get_register(o2.reg()));
             emit(mos6502_opcode::clc);

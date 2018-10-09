@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ca/i386_register.h>
+#include <ca/intel_386_register.h>
 #include <string>
 #include <utility>
 #include <cassert>
@@ -27,7 +27,7 @@ public:
         assert(type_ == operand_type::literal);
     }
 
-    instruction_operand(const i386_register reg)
+    instruction_operand(const intel_386_register reg)
         : type_{operand_type::reg}
         , register_{reg}
     {
@@ -76,7 +76,7 @@ public:
 
 private:
     operand_type type_ = operand_type::empty;
-    i386_register register_ = i386_register::unknown;
+    intel_386_register register_ = intel_386_register::unknown;
     std::string value_;
 };
 

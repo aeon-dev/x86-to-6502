@@ -7,7 +7,7 @@
 namespace ca
 {
 
-enum class i386_opcode : int
+enum class intel_386_opcode : int
 {
     unknown,
     addb,
@@ -47,20 +47,20 @@ enum class i386_opcode : int
     xorl
 };
 
-class i386 : public asm_line
+class intel_386 : public asm_line
 {
 public:
     // Empty line
-    explicit i386(const int line_number);
+    explicit intel_386(const int line_number);
 
     // Comment
-    i386(const int line_number, std::string line_text);
+    intel_386(const int line_number, std::string line_text);
 
-    i386(const int line_number, std::string line_text, line_type type, std::string opcode, std::string operand1 = "",
-         std::string operand2 = "");
+    intel_386(const int line_number, std::string line_text, line_type type, std::string opcode,
+              std::string operand1 = "", std::string operand2 = "");
 
-    static auto parse() -> std::vector<i386>;
-    static auto parse(const std::string &line, const int line_number) -> i386;
+    static auto parse() -> std::vector<intel_386>;
+    static auto parse(const std::string &line, const int line_number) -> intel_386;
 
     auto line_number() const noexcept
     {
@@ -110,7 +110,7 @@ public:
 private:
     int line_number_;
     std::string line_text_;
-    i386_opcode opcode_;
+    intel_386_opcode opcode_;
     instruction_operand operand1_;
     instruction_operand operand2_;
 };
