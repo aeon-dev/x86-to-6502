@@ -1,4 +1,5 @@
-[![Travis-CI](https://travis-ci.org/robindegen/x86-to-6502.svg?branch=dev)](https://travis-ci.org/robindegen/x86-to-6502) [![Appveyor](https://ci.appveyor.com/api/projects/status/xka540criul4tf05?svg=true)](https://ci.appveyor.com/project/robindegen/x86-to-6502)
+[![Travis (.org)](https://img.shields.io/travis/robindegen/x86-to-6502.svg?label=Clang%20(Travis-CI))](https://travis-ci.org/robindegen/x86-to-6502)
+[![AppVeyor](https://img.shields.io/appveyor/ci/robindegen/x86-to-6502.svg?label=Visual%20Studio%202017%20(Appveyor))](https://ci.appveyor.com/project/robindegen/x86-to-6502)
 
 # About
 
