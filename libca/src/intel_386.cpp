@@ -192,7 +192,7 @@ auto intel_386::parse() -> std::vector<intel_386>
         }
     }
 
-    std::set<std::string> used_labels{"main"};
+    std::set<std::string> used_labels{"_main", "_nmi", "_irq"};
 
     for (const auto &i : instructions)
     {
