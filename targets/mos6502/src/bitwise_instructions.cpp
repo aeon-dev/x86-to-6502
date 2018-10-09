@@ -13,7 +13,6 @@ void mos6502_target::translate_andb(const ca::instruction_operand &o1, const ca:
     }
     else if (o1.is_literal() && o2.is_literal())
     {
-        const auto reg = get_register(o2.reg());
         emit(mos6502_opcode::lda, o2);
         emit(mos6502_opcode::AND, ca::instruction_operand(ca::operand_type::literal, fixup_8bit_literal(o1.value())));
         emit(mos6502_opcode::sta, o2);
