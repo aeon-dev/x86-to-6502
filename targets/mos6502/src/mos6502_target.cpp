@@ -198,6 +198,12 @@ void mos6502_target::translate_unknown(const std::string &line)
 void mos6502_target::translate_label(const std::string &line)
 {
     emit(ca::asm_line::line_type::label, line);
+
+    // Update the current label only if it's one of the known functions.
+    // We don't care about the intermediate labels. This way we can emit
+    // rti and rts correctly.
+    if (line == "nmi" || line == "irq" || line == "main")
+        current_label_ = line;
 }
 
 void mos6502_target::translate_directive(const std::string &line)

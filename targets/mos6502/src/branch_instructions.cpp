@@ -36,11 +36,27 @@ void mos6502_target::translate_jmp(const ca::instruction_operand &o1, const ca::
 
 void mos6502_target::translate_ret(const ca::instruction_operand &o1, const ca::instruction_operand &o2)
 {
-    emit(mos6502_opcode::rts);
+    // If we're inside of an interrupt handler, we should emit a "return from interrupt" instruction instead.
+    if (current_label() == "nmi" || current_label() == "irq")
+    {
+        emit(mos6502_opcode::rti);
+    }
+    else
+    {
+        emit(mos6502_opcode::rts);
+    }
 }
 
 void mos6502_target::translate_retl(const ca::instruction_operand &o1, const ca::instruction_operand &o2)
 {
-    /// \todo I don't know if this is completely correct for retl translation
-    emit(mos6502_opcode::rts);
+    // If we're inside of an interrupt handler, we should emit a "return from interrupt" instruction instead.
+    if (current_label() == "nmi" || current_label() == "irq")
+    {
+        emit(mos6502_opcode::rti);
+    }
+    else
+    {
+        /// \todo I don't know if this is completely correct for retl translation
+        emit(mos6502_opcode::rts);
+    }
 }

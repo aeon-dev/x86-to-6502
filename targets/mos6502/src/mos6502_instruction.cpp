@@ -38,6 +38,7 @@ static auto is_branch(const mos6502_opcode o) -> bool
         case mos6502_opcode::adc:
         case mos6502_opcode::sbc:
         case mos6502_opcode::rts:
+        case mos6502_opcode::rti:
         case mos6502_opcode::clc:
         case mos6502_opcode::sec:
         case mos6502_opcode::bit:
@@ -82,6 +83,7 @@ static auto is_comparison(const mos6502_opcode o) -> bool
         case mos6502_opcode::adc:
         case mos6502_opcode::sbc:
         case mos6502_opcode::rts:
+        case mos6502_opcode::rti:
         case mos6502_opcode::clc:
         case mos6502_opcode::sec:
         case mos6502_opcode::jsr:
@@ -174,6 +176,8 @@ auto mos6502::to_string(const mos6502_opcode o) -> std::string
             return "sbc";
         case mos6502_opcode::rts:
             return "rts";
+        case mos6502_opcode::rti:
+            return "rti";
         case mos6502_opcode::clc:
             return "clc";
         case mos6502_opcode::sec:

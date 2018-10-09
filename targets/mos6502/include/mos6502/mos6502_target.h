@@ -157,6 +157,11 @@ private:
         instructions_.back().set_comment(current_text_);
     }
 
+    const auto &current_label() const noexcept
+    {
+        return current_label_;
+    }
+
     void set_current_text(const std::string &text) override;
     void finalize() override;
 
@@ -206,4 +211,5 @@ private:
 
     std::vector<mos6502> instructions_;
     std::string current_text_;
+    std::string current_label_;
 };

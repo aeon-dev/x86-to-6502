@@ -29,6 +29,7 @@ enum class mos6502_opcode : int
     adc,
     sbc,
     rts,
+    rti,
     clc,
     sec,
     bit,
